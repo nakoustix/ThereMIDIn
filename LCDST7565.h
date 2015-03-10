@@ -49,6 +49,7 @@ public:
 	void drawMenuButton(gui_menubutton_e but, int slotIndex);
 
 	void showMenu(int m);
+	void enterMenu(int m);
 
 	void setSynthesizerInstance(Synthesizer *synthInstance) {synth = synthInstance; }
 
@@ -76,7 +77,12 @@ private:
 
 	// selected indices
 	int selectedPart;
-	int currentMenu, lastMenu;
+	int currentMenu;
+	int menuHistory[MENU_HISTORY_SIZE];
+	int itemIndexHistory[MENU_HISTORY_SIZE];
+	int drawIndexHistory[MENU_HISTORY_SIZE];
+	int clineHistory[MENU_HISTORY_SIZE];
+	int historyPos;
 
 	//===== Menu =====
     MenuItem _menu_items[MAX_ITEMS];

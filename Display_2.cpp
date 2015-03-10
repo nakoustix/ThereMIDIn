@@ -3,22 +3,25 @@
 #include "LCDST7565.h"
 #include "Bounce.h"
 #include "Synthesizer.h"
+#include "globals.h"
 
-Bounce left = Bounce(14, 5);
-Bounce back = Bounce(3, 5);
-Bounce right = Bounce(15, 5);
+Bounce up = Bounce(3, 5);
+Bounce back = Bounce(15, 5);
+Bounce down = Bounce(14, 5);
 Bounce enter = Bounce(16, 5);
 
 LCDST7565 lcd;
 Synthesizer synth;
 synth_preset_t synth_preset;
 
+int lastTime = 0;
 void setup()
 {
 	pinMode(3, INPUT_PULLUP);
 	pinMode(14, INPUT_PULLUP);
 	pinMode(15, INPUT_PULLUP);
 	pinMode(16, INPUT_PULLUP);
+	pinMode(13, OUTPUT);
 
 
 	synth_preset.osc[OSC1].amplitude = 0.707f;
@@ -54,28 +57,45 @@ void setup()
 	synth.setFrequency(500);*/
 
 	lcd.setSynthesizerInstance(&synth);
-	lcd.showMenu(MENU_SYNTH);
+	lcd.enterMenu(MENU_SYNTH);
 	lcd.update();
 }
 
-// The loop function is called in an endless loop
+uint8_t led = 0xFF;
 void loop()
 {
-	if(left.fallingEdge())
+	if(up.fallingEdge())
 	{
-		lcd.buttonEvent(2, PRESS_EVENT);
+		lcd.buttonEvent(BUT_UP, PRESS_EVENT);
+	}
+	if(down.fallingEdge())
+	{
+		lcd.buttonEvent(BUT_DOWN, PRESS_EVENT);
 	}
 	if(back.fallingEdge())
 	{
-		lcd.buttonEvent(1, PRESS_EVENT);
+		lcd.buttonEvent(BUT_BACK, PRESS_EVENT);
 	}
 	if(enter.fallingEdge())
 	{
-		lcd.buttonEvent(3, PRESS_EVENT);
+		lcd.buttonEvent(BUT_OK, PRESS_EVENT);
 	}
 
-	left.update();
+	up.update();
 	back.update();
-	right.update();
+	down.update();
 	enter.update();
+
+	if(millis() - lastTime >= 500)
+	{
+		digitalWrite(13, led);
+		if(led)
+		{
+			led = 0;
+		}
+		else
+		{
+			led = 0xFF;
+		}
+	}
 }

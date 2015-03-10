@@ -5,6 +5,8 @@
 #define GUI_SYNTHICON_WIDTH 24
 #define GUI_SYNTHICON_HEIGHT 24
 
+#define MENU_HISTORY_SIZE	6
+
 enum gui_menu_e
 {
 	MENU_HOME,
@@ -25,12 +27,12 @@ enum gui_menu_e
 
 typedef enum
 {
-	BUT_OK,
+	BUT_UP = 0,
+	BUT_DOWN,
 	BUT_BACK,
+	BUT_OK,
 	BUT_SYNTH,
 	BUT_MENU,
-	BUT_LEFT,
-	BUT_RIGHT,
 } gui_menubutton_e;
 
 

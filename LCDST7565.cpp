@@ -19,8 +19,16 @@ LCDST7565::LCDST7565()
 	  // Set all flags/counters to 0:
 	  _n_items = _current_line = _draw_index = _item_index = 0;
 	  _has_draw_funct = false;
-	  currentMenu = lastMenu = MENU_HOME;
+	  currentMenu = MENU_HOME;
 	  lastDrawIndex = lastItemIndex = 0;
+	  historyPos = 0;
+	  for(int i = 0; i < MENU_HISTORY_SIZE; i++)
+	  {
+		  menuHistory[i] = MENU_HOME;
+		  itemIndexHistory[i] = 0;
+		  drawIndexHistory[i] = 0;
+		  clineHistory[i] = 0;
+	  }
 
 	  begin(0x18);
 }
@@ -51,12 +59,12 @@ void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 		this->drawbitmap(x, GUI_BUTTON_Y, button_synth, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
-	case BUT_LEFT:
+	case BUT_UP:
 	{
 		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_left, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
-	case BUT_RIGHT:
+	case BUT_DOWN:
 	{
 		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_right, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
@@ -64,23 +72,34 @@ void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 	}
 }
 
-void LCDST7565::showMenu(int m)
+void LCDST7565::enterMenu(int m)
 {
-	lastMenu = currentMenu;
+	if(historyPos > MENU_HISTORY_SIZE - 1) return;
+	menuHistory[historyPos] = currentMenu;
+	itemIndexHistory[historyPos] = _item_index;
+	drawIndexHistory[historyPos] = _draw_index;
+	clineHistory[historyPos] = _current_line;
+	historyPos++;
 	currentMenu = m;
-	lastDrawIndex = _draw_index;
-	lastItemIndex = _item_index;
 	// clear the current menu
 	clearMenu();
+	showMenu(m);
+	//lastDrawIndex = _draw_index;
+	//lastItemIndex = _item_index;
+	update();
+}
+
+void LCDST7565::showMenu(int m)
+{
 	switch(m)
 	{
 	case MENU_SYNTH:
 	{
 		setMenuTitle("Synthesizer");
-		addMenuItem("OSC1", (int) MENU_SYNTH_OSC1, &LCDST7565::showMenu);
-		addMenuItem("OSC2", (int) MENU_SYNTH_OSC2, &LCDST7565::showMenu);
-		addMenuItem("OSC3", MENU_SYNTH_OSC3, &LCDST7565::showMenu);
-		addMenuItem("Filter", MENU_SYNTH_FILTER, &LCDST7565::showMenu);
+		addMenuItem("OSC1", (int) MENU_SYNTH_OSC1, &LCDST7565::enterMenu);
+		addMenuItem("OSC2", (int) MENU_SYNTH_OSC2, &LCDST7565::enterMenu);
+		addMenuItem("OSC3", MENU_SYNTH_OSC3, &LCDST7565::enterMenu);
+		addMenuItem("Filter", MENU_SYNTH_FILTER, &LCDST7565::enterMenu);
 		break;
 	}
 	case MENU_SYNTH_OSC1:
@@ -100,9 +119,9 @@ void LCDST7565::showMenu(int m)
 		{
 			setMenuTitle("OSC3");
 		}
-		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::showMenu);
-		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::showMenu);
-		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::showMenu);
+		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::enterMenu);
+		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::enterMenu);
+		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::enterMenu);
 		break;
 	}
 	case MENU_SYNTH_OSC_WAVEFORM:
@@ -119,7 +138,6 @@ void LCDST7565::showMenu(int m)
 		break;
 	}
 	}
-	update();
 }
 
 void LCDST7565::setSynthValue(int value)
@@ -181,21 +199,22 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 		{
 			switch(buttonIndex)
 			{
-			case 0:
+			case BUT_BACK:
 			{
+				menuButtonBack();
 				break;
 			}
-			case 1:
+			case BUT_UP:
 			{
 				menuButtonUp();
 				break;
 			}
-			case 2:
+			case BUT_DOWN:
 			{
 				menuButtonDown();
 				break;
 			}
-			case 3:
+			case BUT_OK:
 			{
 				menuButtonSelect();
 				break;
@@ -213,7 +232,16 @@ void LCDST7565::update() {
 
 void LCDST7565::menuButtonBack()
 {
-
+	if(historyPos <= 0) return;
+	historyPos--;
+	currentMenu = menuHistory[historyPos];
+	// clear the current menu
+	clearMenu();
+	showMenu(currentMenu);
+	_item_index = itemIndexHistory[historyPos];
+	_draw_index = drawIndexHistory[historyPos];
+	_current_line = clineHistory[historyPos];
+	update();
 }
 
 void LCDST7565::menuButtonUp()
@@ -332,8 +360,8 @@ void LCDST7565::drawMenu() {
 
   if (_has_draw_funct) _draw_function();
   //this->drawrect(20,20,20,20, BLACK);
-  this->drawMenuButton(BUT_LEFT, 0);
-  this->drawMenuButton(BUT_RIGHT, 1);
+  this->drawMenuButton(BUT_UP, 0);
+  this->drawMenuButton(BUT_DOWN, 1);
   this->drawMenuButton(BUT_BACK, 2);
   this->drawMenuButton(BUT_OK, 3);
   this->display();
