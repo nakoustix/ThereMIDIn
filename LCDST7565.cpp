@@ -108,6 +108,13 @@ void LCDST7565::showMenu(int m)
 	{
 		setMenuTitle("Waveform");
 		addMenuItem("Sine", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Sawtooth", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Square", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Triangle", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Sine", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Sawtooth", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Square", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Triangle", SINE, &LCDST7565::setSynthOscWaveform);
 		break;
 	}
 	}
@@ -262,8 +269,9 @@ void LCDST7565::scroll(int8_t dir) {
 void LCDST7565::drawMenu() {
   uint8_t i, label_len;
   this->clear();
+  //this->fillrect(0, 0, 128, 7, BLACK);
   this->drawstring(0, 0, _title);this->drawstring(LEFT_MARGIN, i+1,
-                                         _menu_items[_draw_index+i].label);
+                                         _menu_items[_draw_index+i].label, BLACK);
   i=0;
   while ((i<N_LINES-1) & (i<_n_items)) {
     this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
@@ -288,12 +296,16 @@ void LCDST7565::drawMenu() {
   }
   // Draw down arrow if there are items below view
   if ((_n_items - _draw_index) >= N_LINES) {
-    this->drawline(123, 60, 125, 63, BLACK);
-    this->drawline(127, 60, 125, 63, BLACK);
+    this->drawline(123, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
+    this->drawline(127, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
   }
 
   if (_has_draw_funct) _draw_function();
   //this->drawrect(20,20,20,20, BLACK);
+  this->drawMenuButton(BUT_LEFT, 0);
+  this->drawMenuButton(BUT_RIGHT, 1);
+  this->drawMenuButton(BUT_BACK, 2);
+  this->drawMenuButton(BUT_OK, 3);
   this->display();
 }
 

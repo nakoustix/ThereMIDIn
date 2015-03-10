@@ -22,7 +22,8 @@
 //----------------------
 
 //--- Constants: ---
-#define N_LINES 8
+#define N_LINES 6
+#define DOWN_ARROW_Y	46
 #define LABEL_LEN 19
 #define ST7565_MENU_VERSION "Menu UI v0.1"
 //------------------
