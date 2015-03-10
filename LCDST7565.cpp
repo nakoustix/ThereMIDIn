@@ -17,8 +17,9 @@ LCDST7565::LCDST7565()
 	  _title[0]='\0';  // So it will be blank if not set
 	  // Set all flags/counters to 0:
 	  _n_items = _current_line = _draw_index = _item_index = 0;
-	  _has_draw_funct = _has_timeout_funct = false;
-	  inactive_count = _active_timeout = 0;
+	  _has_draw_funct = false;
+	  currentMenu = lastMenu = MENU_HOME;
+	  lastDrawIndex = lastItemIndex = 0;
 }
 
 void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
@@ -62,6 +63,10 @@ void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 
 void LCDST7565::showMenu(int m)
 {
+	lastMenu = currentMenu;
+	currentMenu = m;
+	lastDrawIndex = _draw_index;
+	lastItemIndex = _item_index;
 	// clear the current menu
 	clearMenu();
 	switch(m)
@@ -124,69 +129,80 @@ void LCDST7565::drawHome()
 
 }
 
+void LCDST7565::buttonEvent(button_event_t event)
+{
+	if(currentMenu == MENU_HOME)
+	{
+
+	}
+	else // We are in a menu or sub menu
+	{
+		if(event.event == PRESS_EVENT)
+		{
+			switch(event.buttonIndex)
+			{
+			case 0:
+			{
+				break;
+			}
+			case 1:
+			{
+				menuButtonUp();
+				break;
+			}
+			case 2:
+			{
+				menuButtonDown();
+				break;
+			}
+			case 3:
+			{
+				menuButtonSelect();
+				break;
+			}
+			}
+		}
+	}
+}
+
 //=================== Menu ================ Menu ================ Menu =============
 void LCDST7565::update() {
-  if (!digitalRead(_up)) {
-    if (!_up_pressed) {  // Only move once until button release or MAX_HOLD_COUNT reached
-      if (_current_line > 0) _current_line--;
-      else scroll(-1); // We're at the top line, scroll up if possible
-      if (_item_index > 0) {
-        _item_index--;
-      }
-      _up_pressed = true;
-    }
-    else _up_hold_counter++;
-    if (_up_hold_counter >= MAX_HOLD_COUNT) {
-      _up_pressed = false;
-      _up_hold_counter = HOLD_SCROLL_SPEED;
-    }
-  }
-  else {
-    _up_pressed = false;
-    _up_hold_counter = 0;
-  }
-  if (!digitalRead(_down)) {
-    if (!_down_pressed) {  // Wait until button release or max hold time reached
-      if ((_current_line < N_LINES-2) & (_current_line < _n_items-1)) _current_line++;
-      else scroll(1); // We're at the bottom line, scroll down if possible
-      if (_item_index < _n_items-1) {
-        _item_index++;
-      }
-      _down_pressed = true;
-    }
-    else _down_hold_counter++;
-    if (_down_hold_counter >= MAX_HOLD_COUNT) {
-      _down_pressed = false;
-      _down_hold_counter = HOLD_SCROLL_SPEED;
-    }
-  }
-  else {
-    _down_pressed = false;
-    _down_hold_counter = 0;
-  }
 
-  if (!digitalRead(_select)) {
-    if (!_select_pressed) {  // Only selet once until button release
-      if (_menu_items[_item_index].pass_value) {
-        (this->*_menu_items[_item_index].value_function)(_menu_items[_item_index].value);
-      }
-      else if (_menu_items[_item_index].funct) _menu_items[_item_index].function();
-      _select_pressed = true;
-    }
-  }
-  else _select_pressed = false;
   drawMenu();
+}
 
-  if (_has_timeout_funct) {
-    // Inactive this time through loop:
-    if (!(_up_pressed|_down_pressed|_select_pressed)) inactive_count++;
-    else inactive_count = 0;  // A button was pressed, reset counter
-    if (inactive_count >= _active_timeout) {
-      // Timeout reached, call timeout funtion:
-      _timeout_function();
-      inactive_count = 0;
-    }
-  }
+void LCDST7565::menuButtonBack()
+{
+
+}
+
+void LCDST7565::menuButtonUp()
+{
+	// Only move once until button release or MAX_HOLD_COUNT reached
+	if (_current_line > 0) _current_line--;
+	else scroll(-1); // We're at the top line, scroll up if possible
+	if (_item_index > 0)
+	{
+	  _item_index--;
+	}
+	update();
+}
+
+void LCDST7565::menuButtonDown()
+{
+	if ((_current_line < N_LINES-2) & (_current_line < _n_items-1)) _current_line++;
+	else scroll(1); // We're at the bottom line, scroll down if possible
+	if (_item_index < _n_items-1)
+	{
+		_item_index++;
+	}
+	update();
+}
+
+void LCDST7565::menuButtonSelect()
+{
+	(this->*_menu_items[_item_index].value_function)(_menu_items[_item_index].value);
+	update();
 }
 
 void LCDST7565::setMenuTitle(char *label) {
@@ -229,12 +245,6 @@ void LCDST7565::addMenuDrawFunction(void (*function)(void)) {
   _draw_function = function; // Function to call
 }
 
-void LCDST7565::addMenuTimeoutFunction(int timeout, void (*function)(void)) {
-  _has_timeout_funct = 1;
-  _active_timeout = timeout;    // Number of loops without button press
-                                //  before calling timeout function
-  _timeout_function = function; // Function to call
-}
 
 void LCDST7565::scroll(int8_t dir) {
   // Only scrolls screen if possible, doesn't change _item_index
@@ -248,7 +258,7 @@ void LCDST7565::scroll(int8_t dir) {
 
 void LCDST7565::drawMenu() {
   uint8_t i, label_len;
-  this->clearMenu();
+  this->clear();
   this->drawstring(0, 0, _title);this->drawstring(LEFT_MARGIN, i+1,
                                          _menu_items[_draw_index+i].label);
   i=0;
@@ -285,8 +295,8 @@ void LCDST7565::drawMenu() {
 
 void LCDST7565::clearMenu() {
   _n_items = _current_line = _draw_index = _item_index = 0;
-  _has_draw_funct = _has_timeout_funct = _active_timeout = inactive_count = 0;
+  _has_draw_funct = 0;
   _title[0]='\0';  // So it will be blank if set_title() not called
-  this->clearMenu();
+  this->clear();
   //this->display();
 }

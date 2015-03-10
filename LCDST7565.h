@@ -44,6 +44,7 @@ public:
 	} MenuItem;
 
 
+	void buttonEvent(button_event_t event);
 	void drawMenuButton(gui_menubutton_e but, int slotIndex);
 
 	void showMenu(int m);
@@ -58,33 +59,31 @@ public:
     //void addMenuItem(char *label, int value, void (*function)(int));
     void addMenuItem(char *label, int value, void (LCDST7565::*function)(int));
     void addMenuDrawFunction(void (*function)(void));
-    void addMenuTimeoutFunction(int timeout, void (*function)(void));
     void drawMenu();
     void clearMenu();
-    int inactive_count;
 
 private:
 	void drawHome();
 	void setSynthOscWaveform(int waveform);
+	void menuButtonBack();
+	void menuButtonUp();
+	void menuButtonDown();
+	void menuButtonSelect();
 	//void (*synthValueCallback) (int synthPart, int newValue);
 
 	Synthesizer *synth;
 
 	// selected indices
 	int selectedPart;
+	int currentMenu, lastMenu;
 
 	//===== Menu =====
     MenuItem _menu_items[MAX_ITEMS];
     void scroll(int8_t dir);
-    ST7565 *_lcd;
     void (*_draw_function)(void);
-    void (*_timeout_function)(void);
-    bool _up_pressed, _down_pressed, _select_pressed, _has_draw_funct,
-         _has_timeout_funct;
-    uint8_t _up, _down, _select, _n_items, _item_index, _current_line,
-            _up_hold_counter, _down_hold_counter;
-    int8_t _draw_index;
-    int _active_timeout;
+    bool _has_draw_funct;
+    uint8_t _n_items, _item_index, _current_line, lastItemIndex;
+    int8_t _draw_index, lastDrawIndex;
     char _title[LABEL_LEN];
 
 };
