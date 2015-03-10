@@ -32,7 +32,8 @@
 #else
 #include "WProgram.h"
 #endif
-#include "../ST7565/ST7565.h"  // Change accordingly
+#include "ST7565.h"  // Change accordingly
+#include "LCDST7565.h"
 
 //--- Configuration: ---
 #define LEFT_MARGIN       10 // Should be >4
@@ -64,12 +65,13 @@ class Menu {
   public:
     Menu(uint8_t up_pin, uint8_t down_pin, uint8_t select_pin, ST7565 *lcd);
     void update();
-    void set_title(char *title);
-    void add_item(char *label);
-    void add_item(char *label, void (*function)(void));
-    void add_item(char *label, int value, void (*function)(int));
-    void add_draw_function(void (*function)(void));
-    void add_timeout_function(int timeout, void (*function)(void));
+    void setTitle(char *title);
+    void addItem(char *label);
+    void addItem(char *label, void (*function)(void));
+    //void addItem(char *label, int value, void (*function)(int));
+    void addItem(char *label, int value, void (LCDST7565::*function)(int));
+    void addDrawFunction(void (*function)(void));
+    void addTimeoutFunction(int timeout, void (*function)(void));
     void draw();
     void clear();
     int inactive_count;

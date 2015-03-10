@@ -108,11 +108,11 @@ void Menu::update() {
   }
 }
 
-void Menu::set_title(char *label) {
+void Menu::setTitle(char *label) {
   strcpy(_title, label); // First line of display, blank if not set
 }
 
-void Menu::add_item(char *label) {
+void Menu::addItem(char *label) {
   if (_n_items >= MAX_ITEMS) return;
   if (strlen(label) > LABEL_LEN) return;
   MenuItem i;
@@ -121,7 +121,7 @@ void Menu::add_item(char *label) {
   _menu_items[_n_items++] = i;
 }
 
-void Menu::add_item(char *label, void (*function)(void)) {
+void Menu::addItem(char *label, void (*function)(void)) {
   if (_n_items >= MAX_ITEMS) return;
   if (strlen(label) > LABEL_LEN) return;
   MenuItem i;
@@ -132,7 +132,7 @@ void Menu::add_item(char *label, void (*function)(void)) {
   _menu_items[_n_items++] = i;
 }
 
-void Menu::add_item(char *label, int value, void (*function)(int)) {
+void Menu::addItem(char *label, int value, void (*function)(int)) {
   if (_n_items >= MAX_ITEMS) return;
   if (strlen(label) > LABEL_LEN) return;
   MenuItem i;
@@ -143,12 +143,12 @@ void Menu::add_item(char *label, int value, void (*function)(int)) {
   _menu_items[_n_items++] = i;
 }
 
-void Menu::add_draw_function(void (*function)(void)) {
+void Menu::addDrawFunction(void (*function)(void)) {
   _has_draw_funct = 1;       // Should call function before (*lcd).display()
   _draw_function = function; // Function to call
 }
 
-void Menu::add_timeout_function(int timeout, void (*function)(void)) {
+void Menu::addTimeoutFunction(int timeout, void (*function)(void)) {
   _has_timeout_funct = 1;
   _active_timeout = timeout;    // Number of loops without button press
                                 //  before calling timeout function
