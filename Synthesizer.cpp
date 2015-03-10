@@ -13,6 +13,9 @@ Synthesizer::Synthesizer()
 	osc[1] = &osc2;
 	osc[2] = &osc3;
 
+	currentFreq = 300;
+	masterGain = 0.5f;
+
 	// make connections
 	osc12sum = new AudioConnection(osc1, 0, oscSum, 0);
 	osc22sum = new AudioConnection(osc2, 0, oscSum, 1);
@@ -31,7 +34,9 @@ Synthesizer::Synthesizer()
 	fltDryWet2outR = new AudioConnection(fltDryWet, 0, out, 1);
 
 
-	setFilterSerParCrossfade(1.0);
+	setFilterSerParCrossfade(1.f);
+
+	AudioMemory(20);
 }
 
 Synthesizer::~Synthesizer()
@@ -39,22 +44,75 @@ Synthesizer::~Synthesizer()
 
 }
 
-void Synthesizer::setPreset(synth_preset_t p)
+void Synthesizer::enable(float gain)
+{
+	masterGain = gain;
+	audioShield.enable();
+	audioShield.volume(gain);
+	AudioProcessorUsageMaxReset();
+	AudioMemoryUsageMaxReset();
+}
+
+void Synthesizer::disconnect()
+{
+	AudioNoInterrupts();
+	osc12sum->disconnect();
+	AudioInterrupts();
+}
+
+void Synthesizer::reconnect()
+{
+	AudioNoInterrupts();
+	osc12sum->connect(osc1, 0, oscSum, 0);
+	AudioInterrupts();
+}
+
+void Synthesizer::setPreset(synth_preset_t *p)
 {
 	// FILTER SECTION
-	setFilterDryWet(p.filter.dryWet);
-	setFilterSerParCrossfade(p.filter.serParCF);
+	setFilterDryWet(p->filter.dryWet);
+	setFilterSerParCrossfade(p->filter.serParCF);
 
 	// OSC SECTION
 	for(int i = 0; i < 3; i++)
 	{
-		setOSCAmplitude(i, p.osc[i].amplitude);
-		setOSCWaveform(i, p.osc[i].waveform);
-		setOSCWavetablePosition(i, p.osc[i].wavetable_position);
-		setOSCDutycycle(i, p.osc[i].duty);
-		setOSCSemitones(i, p.osc[i].semitones);
-		setOSCCents(i, p.osc[i].cents);
+		setOSCAmplitude(i, p->osc[i].amplitude);
+		setOSCWaveform(i, p->osc[i].waveform);
+		setOSCWavetablePosition(i, p->osc[i].wavetable_position);
+		setOSCDutycycle(i, p->osc[i].duty);
+		setOSCSemitones(i, p->osc[i].semitones);
+		setOSCCents(i, p->osc[i].cents);
 	}
+}
+
+void Synthesizer::setFrequency(float f)
+{
+	AudioNoInterrupts();
+	for(int i = 0; i < 3; i++)
+	{
+		osc[i]->frequency(f);
+	}
+	AudioInterrupts();
+}
+
+void Synthesizer::noteOn()
+{
+	AudioNoInterrupts();
+	for(int i = 0; i < 3; i++)
+	{
+		osc[i]->begin(preset.osc[i].amplitude, currentFreq, preset.osc[i].waveform);
+	}
+	AudioInterrupts();
+}
+
+void Synthesizer::noteOff()
+{
+	AudioNoInterrupts();
+	for(int i = 0; i < 3; i++)
+	{
+		osc[i]->amplitude(0);
+	}
+	AudioInterrupts();
 }
 
 // OSC
@@ -84,7 +142,7 @@ void Synthesizer::setOSCSemitones(int index, int8_t i)
 
 void Synthesizer::setOSCWaveform(int index, int wave)
 {
-	preset.osc[index].waveform = (osc_waveform_e) wave;
+	preset.osc[index].waveform = wave;
 
 	//TODO: update immediately
 }
@@ -111,6 +169,15 @@ void Synthesizer::setFilterDryWet(float f)
 	float coeff = 1.f - f;
 	fltDryWet.gain(0, f);
 	fltDryWet.gain(1, coeff);
+}
+
+void Synthesizer::setFilter1Freq(float f)
+{
+	flt1.frequency(f);
+}
+
+void Synthesizer::setFilter2Freq(float f)
+{
 }
 
 OSCWaveform * Synthesizer::getOSC(int index)

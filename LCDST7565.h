@@ -65,7 +65,7 @@ public:
 
 private:
 	void drawHome();
-	void setSynthOscWaveform(int waveform);
+	void setSynthValue(int value);
 	void menuButtonBack();
 	void menuButtonUp();
 	void menuButtonDown();

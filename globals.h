@@ -86,7 +86,7 @@ typedef enum
 
 typedef struct
 {
-	osc_waveform_e waveform;
+	uint8_t waveform;
 	float wavetable_position;
 	float duty;
 	float amplitude;

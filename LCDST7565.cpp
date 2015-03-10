@@ -6,6 +6,7 @@
  */
 
 #include "LCDST7565.h"
+#include <stdio.h>
 
 LCDST7565::LCDST7565()
 	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
@@ -107,31 +108,60 @@ void LCDST7565::showMenu(int m)
 	case MENU_SYNTH_OSC_WAVEFORM:
 	{
 		setMenuTitle("Waveform");
-		addMenuItem("Sine", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Sawtooth", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Square", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Triangle", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Sine", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Sawtooth", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Square", SINE, &LCDST7565::setSynthOscWaveform);
-		addMenuItem("Triangle", SINE, &LCDST7565::setSynthOscWaveform);
+		addMenuItem("Sine", SINE, &LCDST7565::setSynthValue);
+		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthValue);
+		addMenuItem("Square", SQUARE, &LCDST7565::setSynthValue);
+		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthValue);
+		addMenuItem("Sine", SINE, &LCDST7565::setSynthValue);
+		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthValue);
+		addMenuItem("Square", SQUARE, &LCDST7565::setSynthValue);
+		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthValue);
 		break;
 	}
 	}
 	update();
 }
 
-void LCDST7565::setSynthOscWaveform(int waveform)
+void LCDST7565::setSynthValue(int value)
 {
-	if(synth == NULL)
-		return;
+	char c[19];
+	//if(synth == NULL)
+		//return;
+	this->clear();
+	sprintf(c, "menu = %i",currentMenu);
+	this->drawstring(0, 0, c);
+	sprintf(c, "part = %i",selectedPart);
+	this->drawstring(0, 1, c);
+	sprintf(c, "value = %i", value);
+	this->drawstring(0,2,c);
+	this->display();
+	while(1);
 
-	switch(selectedPart)
+	switch(currentMenu)
 	{
-	case MENU_SYNTH_OSC1: synth->setOSCWaveform(0, waveform); break;
-	case MENU_SYNTH_OSC2: synth->setOSCWaveform(1, waveform); break;
-	case MENU_SYNTH_OSC3: synth->setOSCWaveform(2, waveform); break;
+	case MENU_SYNTH_OSC_WAVEFORM:
+	{
+		switch(selectedPart)
+		{
+		case MENU_SYNTH_OSC1: synth->setOSCWaveform(0, value); break;
+		case MENU_SYNTH_OSC2:
+		{
+			synth->setOSCWaveform(1, value);
+			this->drawstring(0, 3, "Set OSC2.Waveform to:");
+			switch(value)
+			{
+			case SINE: this->drawstring(30, 5, "SINE"); break;
+			case SAWTOOTH: this->drawstring(30, 5, "SAWTOOTH"); break;
+			case SQUARE: this->drawstring(30, 5, "SQUARE"); break;
+			case TRIANGLE: this->drawstring(30, 5, "TRIANGLE"); break;
+			}
+			break;
+		}
+		case MENU_SYNTH_OSC3: synth->setOSCWaveform(2, value); break;
+		}
 	}
+	}
+	this->display();
 }
 
 void LCDST7565::drawHome()

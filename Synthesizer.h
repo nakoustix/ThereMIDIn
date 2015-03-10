@@ -22,7 +22,7 @@ public:
 	Synthesizer();
 	virtual ~Synthesizer();
 
-	void setPreset(synth_preset_t p);
+	void setPreset(synth_preset_t *p);
 
 	void setOSCAmplitude(int index, float amp);
 	void setOSCWaveform(int index, int wave);
@@ -33,6 +33,17 @@ public:
 
 	void setFilterSerParCrossfade(float f);
 	void setFilterDryWet(float f);
+	void setFilter1Freq(float f);
+	void setFilter2Freq(float f);
+
+	void setFrequency(float f);
+	void noteOn();
+	void noteOff();
+
+	void enable(float gain);
+
+	void disconnect();
+	void reconnect();
 
 	OSCWaveform * getOSC(int index);
 	BandPassFilter *getFilter1() { return &flt1; }
@@ -41,6 +52,8 @@ public:
 
 private:
 	synth_preset_t 		preset;
+	float 				currentFreq;
+	float 				masterGain;
 
 	// Audio objects
 	OSCWaveform 			osc1;
@@ -74,6 +87,7 @@ private:
 	AudioConnection			*fltDryWet2outL;
 	AudioConnection			*fltDryWet2outR;
 
+	AudioControlSGTL5000     audioShield;     //xy=586,175
 };
 
 #endif /* SYNTHESIZER_H_ */
