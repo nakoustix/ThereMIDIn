@@ -44,7 +44,7 @@ public:
 	} MenuItem;
 
 
-	void buttonEvent(button_event_t event);
+	void buttonEvent(int buttonIndex, button_event_e event);
 	void drawMenuButton(gui_menubutton_e but, int slotIndex);
 
 	void showMenu(int m);

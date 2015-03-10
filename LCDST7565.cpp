@@ -8,7 +8,7 @@
 #include "LCDST7565.h"
 
 LCDST7565::LCDST7565()
-	: ST7565(0,0,0,0,0)
+	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
 {
 	synth = 0;
 	selectedPart = 0;
@@ -20,6 +20,8 @@ LCDST7565::LCDST7565()
 	  _has_draw_funct = false;
 	  currentMenu = lastMenu = MENU_HOME;
 	  lastDrawIndex = lastItemIndex = 0;
+
+	  begin(0x18);
 }
 
 void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
@@ -98,7 +100,7 @@ void LCDST7565::showMenu(int m)
 			setMenuTitle("OSC3");
 		}
 		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::showMenu);
-		addMenuItem("Wavetable-Pos.", MENU_SYNTH_OSC_WTPOS, &LCDST7565::showMenu);
+		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::showMenu);
 		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::showMenu);
 		break;
 	}
@@ -109,6 +111,7 @@ void LCDST7565::showMenu(int m)
 		break;
 	}
 	}
+	update();
 }
 
 void LCDST7565::setSynthOscWaveform(int waveform)
@@ -129,7 +132,7 @@ void LCDST7565::drawHome()
 
 }
 
-void LCDST7565::buttonEvent(button_event_t event)
+void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 {
 	if(currentMenu == MENU_HOME)
 	{
@@ -137,9 +140,9 @@ void LCDST7565::buttonEvent(button_event_t event)
 	}
 	else // We are in a menu or sub menu
 	{
-		if(event.event == PRESS_EVENT)
+		if(event == PRESS_EVENT)
 		{
-			switch(event.buttonIndex)
+			switch(buttonIndex)
 			{
 			case 0:
 			{
@@ -290,6 +293,7 @@ void LCDST7565::drawMenu() {
   }
 
   if (_has_draw_funct) _draw_function();
+  //this->drawrect(20,20,20,20, BLACK);
   this->display();
 }
 
