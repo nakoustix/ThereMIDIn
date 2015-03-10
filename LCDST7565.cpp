@@ -83,13 +83,13 @@ void LCDST7565::enterMenu(int m)
 	currentMenu = m;
 	// clear the current menu
 	clearMenu();
-	showMenu(m);
+	makeMenu(m);
 	//lastDrawIndex = _draw_index;
 	//lastItemIndex = _item_index;
 	update();
 }
 
-void LCDST7565::showMenu(int m)
+void LCDST7565::makeMenu(int m)
 {
 	switch(m)
 	{
@@ -237,7 +237,7 @@ void LCDST7565::menuButtonBack()
 	currentMenu = menuHistory[historyPos];
 	// clear the current menu
 	clearMenu();
-	showMenu(currentMenu);
+	makeMenu(currentMenu);
 	_item_index = itemIndexHistory[historyPos];
 	_draw_index = drawIndexHistory[historyPos];
 	_current_line = clineHistory[historyPos];

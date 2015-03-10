@@ -48,7 +48,7 @@ public:
 	void buttonEvent(int buttonIndex, button_event_e event);
 	void drawMenuButton(gui_menubutton_e but, int slotIndex);
 
-	void showMenu(int m);
+	void makeMenu(int m);
 	void enterMenu(int m);
 
 	void setSynthesizerInstance(Synthesizer *synthInstance) {synth = synthInstance; }
