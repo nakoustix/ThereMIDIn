@@ -1,11 +1,13 @@
 // Do not remove the include below
 #include "Display_2.h"
+#include "LCDST7565.h"
 
 
-//The setup function is called once at startup of the sketch
+LCDST7565 *lcd = new LCDST7565();
+
 void setup()
 {
-// Add your initialization code here
+
 }
 
 // The loop function is called in an endless loop

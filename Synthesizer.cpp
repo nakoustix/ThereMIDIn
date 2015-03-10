@@ -31,7 +31,7 @@ Synthesizer::Synthesizer()
 	fltDryWet2outR = new AudioConnection(fltDryWet, 0, out, 1);
 
 
-	setFilterSerParCrossfade(serParCF);
+	setFilterSerParCrossfade(1.0);
 }
 
 Synthesizer::~Synthesizer()
@@ -84,7 +84,7 @@ void Synthesizer::setOSCSemitones(int index, int8_t i)
 
 void Synthesizer::setOSCWaveform(int index, int wave)
 {
-	preset.osc[index].waveform = wave;
+	preset.osc[index].waveform = (osc_waveform_e) wave;
 
 	//TODO: update immediately
 }

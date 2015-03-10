@@ -68,8 +68,8 @@ class Menu {
     void setTitle(char *title);
     void addItem(char *label);
     void addItem(char *label, void (*function)(void));
-    //void addItem(char *label, int value, void (*function)(int));
-    void addItem(char *label, int value, void (LCDST7565::*function)(int));
+    void addItem(char *label, int value, void (*function)(int));
+    //void addItem(char *label, int value, void (LCDST7565::*function)(int));
     void addDrawFunction(void (*function)(void));
     void addTimeoutFunction(int timeout, void (*function)(void));
     void draw();
