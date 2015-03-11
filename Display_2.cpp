@@ -5,9 +5,9 @@
 #include "Synthesizer.h"
 #include "globals.h"
 
-Bounce up = Bounce(3, 5);
+Bounce up = Bounce(14, 5);
+Bounce down = Bounce(3, 5);
 Bounce back = Bounce(15, 5);
-Bounce down = Bounce(14, 5);
 Bounce enter = Bounce(16, 5);
 
 LCDST7565 lcd;
@@ -57,7 +57,7 @@ void setup()
 	synth.setFrequency(500);*/
 
 	lcd.setSynthesizerInstance(&synth);
-	lcd.enterMenu(MENU_SYNTH);
+	lcd.enterMenu(MENU_MAIN);
 	lcd.update();
 }
 

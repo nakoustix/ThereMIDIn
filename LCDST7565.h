@@ -101,6 +101,7 @@ private:
 	void drawValueMenu();
 	void valueMenuUp();
 	void valueMenuDown();
+	int centerString(char *c);
 
 	Synthesizer *synth;
 

@@ -268,71 +268,6 @@ void LCDST7565::makeValueMenu(int menu)
 	}
 }
 
-void LCDST7565::drawValueMenu()
-{
-	uint8_t strx;
-	uint8_t strline = GUI_VALSTR_LINE;
-	uint8_t slen = 0;
-	char str[19];
-	clear();/*
-	drawstring(0,0, cSynthVal.name);
-	char c[19];
-	sprintf(c, "%i%s", cSynthVal.value, cSynthVal.unit);*/
-
-	// draw title
-	drawstring(0,0, cSynthVal.name);
-
-	// Draw value bar for floats ints
-	if(cSynthVal.type == VAL_TYPE_INT || cSynthVal.type == VAL_TYPE_FLOAT)
-	{
-		int fillw;
-		if(cSynthVal.type == VAL_TYPE_INT)
-		{
-			fillw = (GUI_VALBAR_WIDTH * cSynthVal.value) / (cSynthVal.max - cSynthVal.min);
-		}
-		else
-		{
-			fillw = (int)  ((GUI_VALBAR_WIDTH * cSynthVal.fvalue) / (cSynthVal.fmax - cSynthVal.fmin));
-		}
-		drawrect(GUI_VALBAR_X, GUI_VALBAR_Y, GUI_VALBAR_WIDTH, GUI_VALBAR_HEIGHT, BLACK);
-		fillrect(GUI_VALBAR_X, GUI_VALBAR_Y, fillw, GUI_VALBAR_HEIGHT, BLACK);
-
-		//draw left marker
-		setpixel(GUI_VALBAR_X, GUI_VALBAR_Y-1, BLACK);
-		//draw right marker
-		setpixel(GUI_VALBAR_X + GUI_VALBAR_WIDTH, GUI_VALBAR_Y-1, BLACK);
-		//draw middle marker
-		setpixel(GUI_VALBAR_HALF, GUI_VALBAR_Y-1,BLACK);
-		setpixel(GUI_VALBAR_HALF+1, GUI_VALBAR_Y-1,BLACK);
-		strline = GUI_VALBAR_STR_LINE;
-	}
-
-	// draw value string
-	switch(cSynthVal.type)
-	{
-	case VAL_TYPE_MIDI_CHANNEL:
-	case VAL_TYPE_MIDI_NOTE:
-	case VAL_TYPE_MIDI_CC:
-	case VAL_TYPE_INT:
-	{
-		sprintf(str, "%i %s", cSynthVal.value, cSynthVal.unit);
-		break;
-	}
-	case VAL_TYPE_FLOAT:
-	{
-		sprintf(str, "%f %s", cSynthVal.fvalue, cSynthVal.unit);
-		break;
-	}
-	}
-	strx = GUI_CHARS_PER_LINE / 2 - (strlen(str) * 5) / 2 + 1;
-	drawstring(strx, strline, str);
-
-	this->drawMenuButton(BUT_UP, 0);
-	this->drawMenuButton(BUT_DOWN, 1);
-	this->drawMenuButton(BUT_BACK, 2);
-	this->drawMenuButton(BUT_OK, 3);
-	display();
-}
 
 void LCDST7565::valueMenuUp()
 {
@@ -373,7 +308,7 @@ void LCDST7565::valueMenuDown()
 	case VAL_TYPE_INT:
 	{
 		cSynthVal.value -= cSynthVal.step;
-		if(cSynthVal.value > cSynthVal.min)
+		if(cSynthVal.value < cSynthVal.min)
 		{
 			cSynthVal.value = cSynthVal.min;
 		}
@@ -615,11 +550,13 @@ void LCDST7565::scroll(int8_t dir) {
   else _draw_index = 0;
 }
 
+
+//========== DRAW ================= DRAW =================== DRAW ====================
 void LCDST7565::drawMenu() {
   uint8_t i, label_len;
   this->clear();
   //this->fillrect(0, 0, 128, 7, BLACK);
-  this->drawstring(0, 0, _title);this->drawstring(LEFT_MARGIN, i+1,
+  this->drawstring(centerString(_title), 0, _title);this->drawstring(LEFT_MARGIN, i+1,
                                          _menu_items[_draw_index+i].label);
   i=0;
   while ((i<N_LINES-1) & (i<_n_items)) {
@@ -658,10 +595,98 @@ void LCDST7565::drawMenu() {
   this->display();
 }
 
+
+
+void LCDST7565::drawValueMenu()
+{
+	uint8_t strx;
+	uint8_t strline = GUI_VALSTR_LINE;
+	uint8_t slen = 0;
+	char str[19];
+	clear();/*
+	drawstring(0,0, cSynthVal.name);
+	char c[19];
+	sprintf(c, "%i%s", cSynthVal.value, cSynthVal.unit);*/
+
+	// draw title
+	drawstring(centerString(cSynthVal.name),0, cSynthVal.name);
+
+	// Draw value bar for floats ints
+	if(cSynthVal.type == VAL_TYPE_INT || cSynthVal.type == VAL_TYPE_FLOAT)
+	{
+		int fillw;
+		if(cSynthVal.type == VAL_TYPE_INT)
+		{
+			fillw = (GUI_VALBAR_WIDTH * cSynthVal.value) / (cSynthVal.max - cSynthVal.min);
+		}
+		else
+		{
+			fillw = (int)  ((GUI_VALBAR_WIDTH * cSynthVal.fvalue) / (cSynthVal.fmax - cSynthVal.fmin));
+		}
+
+		drawrect(GUI_VALBAR_X-1, GUI_VALBAR_Y, GUI_VALBAR_WIDTH+2, GUI_VALBAR_HEIGHT, BLACK);
+		fillrect(GUI_VALBAR_X, GUI_VALBAR_Y, fillw, GUI_VALBAR_HEIGHT, BLACK);
+
+		for(int x = GUI_VALBAR_X + 9; x < GUI_VALBAR_X+GUI_VALBAR_WIDTH-1; x += 10)
+		{
+			setpixel(x, GUI_VALBAR_Y-1, BLACK);
+			setpixel(x, GUI_VALBAR_Y + GUI_VALBAR_HEIGHT, BLACK);
+		}
+		//draw left marker
+		drawline(GUI_VALBAR_X-2, GUI_VALBAR_Y-2, GUI_VALBAR_X-2, GUI_VALBAR_Y + GUI_VALBAR_HEIGHT+1, BLACK);
+		//draw right marker
+		drawline(GUI_VALBAR_X + GUI_VALBAR_WIDTH, GUI_VALBAR_Y-2, GUI_VALBAR_X + GUI_VALBAR_WIDTH, GUI_VALBAR_Y + GUI_VALBAR_HEIGHT+1, BLACK);
+		//draw middle marker
+		//setpixel(GUI_VALBAR_HALF, GUI_VALBAR_Y-1,BLACK);
+		setpixel(GUI_VALBAR_HALF+1, GUI_VALBAR_Y-1, BLACK);
+		setpixel(GUI_VALBAR_HALF+1, GUI_VALBAR_Y + GUI_VALBAR_HEIGHT, BLACK);
+		strline = GUI_VALBAR_STR_LINE;
+	}
+
+	// draw value string
+	switch(cSynthVal.type)
+	{
+	case VAL_TYPE_MIDI_CHANNEL:
+	case VAL_TYPE_MIDI_NOTE:
+	case VAL_TYPE_MIDI_CC:
+	case VAL_TYPE_INT:
+	{
+		sprintf(str, "%i%s", cSynthVal.value, cSynthVal.unit);
+		break;
+	}
+	case VAL_TYPE_FLOAT:
+	{
+		sprintf(str, "%f%s", cSynthVal.fvalue, cSynthVal.unit);
+		break;
+	}
+	}
+	//strx = GUI_CHARS_PER_LINE / 2 - (strlen(str) * 5) / 2 + 1;
+	strx = centerString(str);
+	drawstring(strx, strline, str);
+
+	this->drawMenuButton(BUT_UP, 0);
+	this->drawMenuButton(BUT_DOWN, 1);
+	this->drawMenuButton(BUT_BACK, 2);
+	this->drawMenuButton(BUT_OK, 3);
+	display();
+}
+
+
 void LCDST7565::clearMenu() {
   _n_items = _current_line = _draw_index = _item_index = 0;
   _has_draw_funct = 0;
   _title[0]='\0';  // So it will be blank if set_title() not called
   this->clear();
   //this->display();
+}
+
+int LCDST7565::centerString(char *c)
+{
+	int len = strlen(c);
+	/*clear();
+	sprintf(c, "%i", len);
+	drawstring(0,0,c);
+	display();
+	while(1);*/
+	return GUI_CHARS_PER_LINE *5 / 2 - len * 5 / 2;
 }
