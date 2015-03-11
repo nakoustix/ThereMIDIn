@@ -55,15 +55,17 @@ void Synthesizer::enable(float gain)
 
 void Synthesizer::disconnect()
 {
+	//TODO: uncomment this!!!
 	AudioNoInterrupts();
-	osc12sum->disconnect();
+	//osc12sum->disconnect();
 	AudioInterrupts();
 }
 
 void Synthesizer::reconnect()
 {
+	//TODO: uncomment this!!!
 	AudioNoInterrupts();
-	osc12sum->connect(osc1, 0, oscSum, 0);
+	//osc12sum->connect(osc1, 0, oscSum, 0);
 	AudioInterrupts();
 }
 

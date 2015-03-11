@@ -25,10 +25,32 @@
 #define N_LINES 6
 #define DOWN_ARROW_Y	46
 #define LABEL_LEN 19
+#define UNIT_LEN 2
 #define ST7565_MENU_VERSION "Menu UI v0.1"
 //------------------
 
 
+typedef enum
+{
+	VAL_TYPE_INT = 0,
+	VAL_TYPE_FLOAT,
+	VAL_TYPE_MIDI_CC,
+	VAL_TYPE_MIDI_NOTE,
+	VAL_TYPE_MIDI_CHANNEL
+}synth_value_e;
+
+typedef struct
+{
+	synth_value_e type;
+	int min, max;
+	int value;
+	int step;
+	int fstep;
+	float fmin, fmax;
+	float fvalue;
+	char unit[UNIT_LEN];
+	char name[LABEL_LEN];
+} synth_value_t;
 
 class LCDST7565 : public ST7565 {
 public:
@@ -43,6 +65,7 @@ public:
 	  char* (*data_function)(void);
 	  void (LCDST7565::*value_function)(int);
 	} MenuItem;
+
 
 
 	void buttonEvent(int buttonIndex, button_event_e event);
@@ -66,23 +89,31 @@ public:
 
 private:
 	void drawHome();
-	void setSynthValue(int value);
-	void menuButtonBack();
-	void menuButtonUp();
-	void menuButtonDown();
-	void menuButtonSelect();
-	//void (*synthValueCallback) (int synthPart, int newValue);
+	void setSynthProperty(int value);
+	void setOperatingMode(int value);
+	void calibrateAntennas(int value);
+	void menuBack();
+	void menuUp();
+	void menuDown();
+	void menuSelect();
+	void makeValueMenu(int menu);
+	void enterValueMenu(int menu);
+	void drawValueMenu();
+	void valueMenuUp();
+	void valueMenuDown();
 
 	Synthesizer *synth;
 
 	// selected indices
 	int selectedPart;
 	int currentMenu;
+	synth_value_t cSynthVal;
 	int menuHistory[MENU_HISTORY_SIZE];
 	int itemIndexHistory[MENU_HISTORY_SIZE];
 	int drawIndexHistory[MENU_HISTORY_SIZE];
 	int clineHistory[MENU_HISTORY_SIZE];
 	int historyPos;
+	bool valueMenuActive;
 
 	//===== Menu =====
     MenuItem _menu_items[MAX_ITEMS];

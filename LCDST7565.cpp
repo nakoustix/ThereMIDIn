@@ -13,6 +13,7 @@ LCDST7565::LCDST7565()
 {
 	synth = 0;
 	selectedPart = 0;
+	valueMenuActive = false;
 
 	// Menu
 	  _title[0]='\0';  // So it will be blank if not set
@@ -93,6 +94,53 @@ void LCDST7565::makeMenu(int m)
 {
 	switch(m)
 	{
+	case MENU_MAIN:
+	{
+		setMenuTitle("Mainmenu");
+		addMenuItem("Operating Mode", (int) MENU_OPERATING_MODE, &LCDST7565::enterMenu);
+		addMenuItem("Calibrate Antennas", (int) MENU_ANTENNA_CALIB, &LCDST7565::calibrateAntennas);
+		addMenuItem("MIDI Settings", (int) MENU_MIDI, &LCDST7565::enterMenu);
+		addMenuItem("Synth Settings", (int) MENU_SYNTH, &LCDST7565::enterMenu);
+		addMenuItem("Display Settings", (int) MENU_DISP, &LCDST7565::enterMenu);
+		break;
+	}
+	case MENU_OPERATING_MODE:
+	{
+		setMenuTitle("Operating Mode");
+		addMenuItem("MIDI / USB-MIDI", (int) OPMODE_MIDI, &LCDST7565::setOperatingMode);
+		addMenuItem("Standalone", (int) OPMODE_STANDALONE, &LCDST7565::setOperatingMode);
+		break;
+	}
+	case MENU_DISP:
+	{
+		setMenuTitle("Display Settings");
+		addMenuItem("Background Color", (int) MENU_DISP_COLOR, &LCDST7565::enterValueMenu);
+		addMenuItem("Brightness", (int) MENU_DISP_BRIGHT, &LCDST7565::enterValueMenu);
+		addMenuItem("Contrast", (int) MENU_DISP_CONTRAST, &LCDST7565::enterValueMenu);
+		break;
+	}
+	case MENU_MIDI:
+	{
+		setMenuTitle("MIDI Settings");
+		addMenuItem("MIDI Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
+		addMenuItem("MIDI Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
+		addMenuItem("MIDI CC Pitch", MENU_MIDI_CC_PITCH, &LCDST7565::enterMenu);
+		addMenuItem("MIDI CC Volume", MENU_MIDI_CC_VOL, &LCDST7565::enterMenu);
+		break;
+	}
+	case MENU_MIDI_CC_PITCH:
+	{
+		setMenuTitle("MIDI CC Pitch");
+		//addMenuItem("14Bit Pitch-Bend",
+		addMenuItem("Standard MIDI CC", MENU_MIDI_CC_STANDARD, &LCDST7565::enterValueMenu);
+		break;
+	}
+	case MENU_MIDI_CC_VOL:
+	{
+		setMenuTitle("MIDI CC Volume");
+		addMenuItem("Standard MIDI CC", MENU_MIDI_CC_STANDARD, &LCDST7565::enterValueMenu);
+		break;
+	}
 	case MENU_SYNTH:
 	{
 		setMenuTitle("Synthesizer");
@@ -120,27 +168,231 @@ void LCDST7565::makeMenu(int m)
 			setMenuTitle("OSC3");
 		}
 		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::enterMenu);
-		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::enterMenu);
-		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::enterMenu);
+		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::enterValueMenu);
+		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::enterValueMenu);
 		break;
 	}
 	case MENU_SYNTH_OSC_WAVEFORM:
 	{
 		setMenuTitle("Waveform");
-		addMenuItem("Sine", SINE, &LCDST7565::setSynthValue);
-		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthValue);
-		addMenuItem("Square", SQUARE, &LCDST7565::setSynthValue);
-		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthValue);
-		addMenuItem("Sine", SINE, &LCDST7565::setSynthValue);
-		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthValue);
-		addMenuItem("Square", SQUARE, &LCDST7565::setSynthValue);
-		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthValue);
+		addMenuItem("Sine", SINE, &LCDST7565::setSynthProperty);
+		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthProperty);
+		addMenuItem("Square", SQUARE, &LCDST7565::setSynthProperty);
+		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthProperty);
+		addMenuItem("Sine", SINE, &LCDST7565::setSynthProperty);
+		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthProperty);
+		addMenuItem("Square", SQUARE, &LCDST7565::setSynthProperty);
+		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthProperty);
 		break;
 	}
 	}
 }
 
-void LCDST7565::setSynthValue(int value)
+void LCDST7565::enterValueMenu(int menu)
+{
+
+	if(historyPos > MENU_HISTORY_SIZE - 1) return;
+	menuHistory[historyPos] = currentMenu;
+	itemIndexHistory[historyPos] = _item_index;
+	drawIndexHistory[historyPos] = _draw_index;
+	clineHistory[historyPos] = _current_line;
+	historyPos++;
+	currentMenu = menu;
+
+	valueMenuActive = true;
+	clear();
+	makeValueMenu(menu);
+	update();
+}
+
+void LCDST7565::makeValueMenu(int menu)
+{
+	switch(menu)
+	{
+	//TODO: set current value when enter a valueMenu
+		case MENU_SYNTH_OSC_AMPLITUDE:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = 0;
+			cSynthVal.max = 100;
+			cSynthVal.value = 71;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "Amplitude");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
+		case MENU_MIDI_CHANNEL:
+		{
+			cSynthVal.type = VAL_TYPE_MIDI_CHANNEL;
+			cSynthVal.min = 0;
+			cSynthVal.max = 15;
+			cSynthVal.value = 0;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "MIDI Channel");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+		case MENU_MIDI_NOTE:
+		{
+			cSynthVal.type = VAL_TYPE_MIDI_NOTE;
+			cSynthVal.min = 0;
+			cSynthVal.max = 127;
+			cSynthVal.value = 0;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "MIDI Note");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+		case MENU_MIDI_CC_PITCH:
+		{
+			cSynthVal.type = VAL_TYPE_MIDI_CC;
+			cSynthVal.min = 0;
+			cSynthVal.max = 127;
+			cSynthVal.value = 0;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "MIDI CC Pitch");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+		case MENU_MIDI_CC_VOL:
+		{
+			cSynthVal.type = VAL_TYPE_MIDI_CC;
+			cSynthVal.min = 0;
+			cSynthVal.max = 127;
+			cSynthVal.value = 0;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "MIDI CC Volume");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+	}
+}
+
+void LCDST7565::drawValueMenu()
+{
+	uint8_t strx;
+	uint8_t strline = GUI_VALSTR_LINE;
+	uint8_t slen = 0;
+	char str[19];
+	clear();/*
+	drawstring(0,0, cSynthVal.name);
+	char c[19];
+	sprintf(c, "%i%s", cSynthVal.value, cSynthVal.unit);*/
+
+	// draw title
+	drawstring(0,0, cSynthVal.name);
+
+	// Draw value bar for floats ints
+	if(cSynthVal.type == VAL_TYPE_INT || cSynthVal.type == VAL_TYPE_FLOAT)
+	{
+		int fillw;
+		if(cSynthVal.type == VAL_TYPE_INT)
+		{
+			fillw = (GUI_VALBAR_WIDTH * cSynthVal.value) / (cSynthVal.max - cSynthVal.min);
+		}
+		else
+		{
+			fillw = (int)  ((GUI_VALBAR_WIDTH * cSynthVal.fvalue) / (cSynthVal.fmax - cSynthVal.fmin));
+		}
+		drawrect(GUI_VALBAR_X, GUI_VALBAR_Y, GUI_VALBAR_WIDTH, GUI_VALBAR_HEIGHT, BLACK);
+		fillrect(GUI_VALBAR_X, GUI_VALBAR_Y, fillw, GUI_VALBAR_HEIGHT, BLACK);
+
+		//draw left marker
+		setpixel(GUI_VALBAR_X, GUI_VALBAR_Y-1, BLACK);
+		//draw right marker
+		setpixel(GUI_VALBAR_X + GUI_VALBAR_WIDTH, GUI_VALBAR_Y-1, BLACK);
+		//draw middle marker
+		setpixel(GUI_VALBAR_HALF, GUI_VALBAR_Y-1,BLACK);
+		setpixel(GUI_VALBAR_HALF+1, GUI_VALBAR_Y-1,BLACK);
+		strline = GUI_VALBAR_STR_LINE;
+	}
+
+	// draw value string
+	switch(cSynthVal.type)
+	{
+	case VAL_TYPE_MIDI_CHANNEL:
+	case VAL_TYPE_MIDI_NOTE:
+	case VAL_TYPE_MIDI_CC:
+	case VAL_TYPE_INT:
+	{
+		sprintf(str, "%i %s", cSynthVal.value, cSynthVal.unit);
+		break;
+	}
+	case VAL_TYPE_FLOAT:
+	{
+		sprintf(str, "%f %s", cSynthVal.fvalue, cSynthVal.unit);
+		break;
+	}
+	}
+	strx = GUI_CHARS_PER_LINE / 2 - (strlen(str) * 5) / 2 + 1;
+	drawstring(strx, strline, str);
+
+	this->drawMenuButton(BUT_UP, 0);
+	this->drawMenuButton(BUT_DOWN, 1);
+	this->drawMenuButton(BUT_BACK, 2);
+	this->drawMenuButton(BUT_OK, 3);
+	display();
+}
+
+void LCDST7565::valueMenuUp()
+{
+	switch(cSynthVal.type)
+	{
+	case VAL_TYPE_MIDI_CHANNEL:
+	case VAL_TYPE_MIDI_NOTE:
+	case VAL_TYPE_MIDI_CC:
+	case VAL_TYPE_INT:
+	{
+		cSynthVal.value += cSynthVal.step;
+		if(cSynthVal.value > cSynthVal.max)
+		{
+			cSynthVal.value = cSynthVal.max;
+		}
+		break;
+	}
+	case VAL_TYPE_FLOAT:
+	{
+		cSynthVal.fvalue += cSynthVal.fstep;
+		if(cSynthVal.fvalue > cSynthVal.fmax)
+		{
+			cSynthVal.fvalue = cSynthVal.fmax;
+		}
+		break;
+	}
+	}
+	update();
+}
+
+void LCDST7565::valueMenuDown()
+{
+	switch(cSynthVal.type)
+	{
+	case VAL_TYPE_MIDI_CHANNEL:
+	case VAL_TYPE_MIDI_NOTE:
+	case VAL_TYPE_MIDI_CC:
+	case VAL_TYPE_INT:
+	{
+		cSynthVal.value -= cSynthVal.step;
+		if(cSynthVal.value > cSynthVal.min)
+		{
+			cSynthVal.value = cSynthVal.min;
+		}
+		break;
+	}
+	case VAL_TYPE_FLOAT:
+	{
+		cSynthVal.fvalue -= cSynthVal.fstep;
+		if(cSynthVal.fvalue < cSynthVal.fmin)
+		{
+			cSynthVal.fvalue = cSynthVal.fmin;
+		}
+		break;
+	}
+	}
+	update();
+}
+
+void LCDST7565::setSynthProperty(int value)
 {
 	char c[19];
 	//if(synth == NULL)
@@ -184,7 +436,17 @@ void LCDST7565::setSynthValue(int value)
 
 void LCDST7565::drawHome()
 {
+	//TODO: Homescreen has to be drawn
+}
 
+void LCDST7565::setOperatingMode(int opmode)
+{
+	//TODO: Change operating mode
+}
+
+void LCDST7565::calibrateAntennas(int value)
+{
+	//TODO: Calibrate antennas
 }
 
 void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
@@ -201,22 +463,43 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 			{
 			case BUT_BACK:
 			{
-				menuButtonBack();
+				menuBack();
 				break;
 			}
 			case BUT_UP:
 			{
-				menuButtonUp();
+				if(valueMenuActive)
+				{
+					valueMenuUp();
+				}
+				else
+				{
+					menuUp();
+				}
 				break;
 			}
 			case BUT_DOWN:
 			{
-				menuButtonDown();
+				if(valueMenuActive)
+				{
+					valueMenuDown();
+				}
+				else
+				{
+					menuDown();
+				}
 				break;
 			}
 			case BUT_OK:
 			{
-				menuButtonSelect();
+				if(valueMenuActive)
+				{
+					menuBack();
+				}
+				else
+				{
+					menuSelect();
+				}
 				break;
 			}
 			}
@@ -227,15 +510,23 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 //=================== Menu ================ Menu ================ Menu =============
 void LCDST7565::update() {
 
-  drawMenu();
+	if(valueMenuActive)
+	{
+		drawValueMenu();
+	}
+	else
+	{
+		drawMenu();
+	}
 }
 
-void LCDST7565::menuButtonBack()
+void LCDST7565::menuBack()
 {
-	if(historyPos <= 0) return;
+	if(historyPos <= 1) return;
 	historyPos--;
 	currentMenu = menuHistory[historyPos];
 	// clear the current menu
+	valueMenuActive = false;
 	clearMenu();
 	makeMenu(currentMenu);
 	_item_index = itemIndexHistory[historyPos];
@@ -244,7 +535,7 @@ void LCDST7565::menuButtonBack()
 	update();
 }
 
-void LCDST7565::menuButtonUp()
+void LCDST7565::menuUp()
 {
 	// Only move once until button release or MAX_HOLD_COUNT reached
 	if (_current_line > 0) _current_line--;
@@ -256,7 +547,7 @@ void LCDST7565::menuButtonUp()
 	update();
 }
 
-void LCDST7565::menuButtonDown()
+void LCDST7565::menuDown()
 {
 	if ((_current_line < N_LINES-2) & (_current_line < _n_items-1)) _current_line++;
 	else scroll(1); // We're at the bottom line, scroll down if possible
@@ -267,7 +558,7 @@ void LCDST7565::menuButtonDown()
 	update();
 }
 
-void LCDST7565::menuButtonSelect()
+void LCDST7565::menuSelect()
 {
 	(this->*_menu_items[_item_index].value_function)(_menu_items[_item_index].value);
 	update();
@@ -329,7 +620,7 @@ void LCDST7565::drawMenu() {
   this->clear();
   //this->fillrect(0, 0, 128, 7, BLACK);
   this->drawstring(0, 0, _title);this->drawstring(LEFT_MARGIN, i+1,
-                                         _menu_items[_draw_index+i].label, BLACK);
+                                         _menu_items[_draw_index+i].label);
   i=0;
   while ((i<N_LINES-1) & (i<_n_items)) {
     this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
