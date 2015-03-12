@@ -657,6 +657,7 @@ void LCDST7565::drawMenu() {
   //this->fillrect(0, 0, 128, 7, BLACK);
   this->drawstring(centerString(_title), 0, _title);this->drawstring(LEFT_MARGIN, i+1,
                                          _menu_items[_draw_index+i].label);
+  this->invertRect(0,0, 128, 8);
   i=0;
   while ((i<N_LINES-1) & (i<_n_items)) {
     this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
@@ -709,6 +710,7 @@ void LCDST7565::drawValueMenu()
 
 	// draw title
 	drawstring(centerString(cSynthVal.name),0, cSynthVal.name);
+	invertRect(0,0,128,8);
 
 	// Draw value bar for floats ints
 	if(cSynthVal.type == VAL_TYPE_INT || cSynthVal.type == VAL_TYPE_FLOAT)
@@ -798,3 +800,4 @@ int LCDST7565::centerString(char *c)
 	while(1);*/
 	return GUI_CHARS_PER_LINE *5 / 2 - len * 5 / 2;
 }
+

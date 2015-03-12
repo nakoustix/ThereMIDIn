@@ -104,6 +104,7 @@ private:
 	void updateValue();
 	int centerString(char *c);
 
+
 	Synthesizer *synth;
 
 	// selected indices
