@@ -118,6 +118,8 @@ private:
 	int clineHistory[MENU_HISTORY_SIZE];
 	int historyPos;
 	bool valueMenuActive;
+	int valStepFactor;
+	int valRepeatedCount;
 
 	uint8_t contrast;
 

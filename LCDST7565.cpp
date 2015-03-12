@@ -14,6 +14,8 @@ LCDST7565::LCDST7565()
 	synth = 0;
 	selectedPart = selectedPartIndex = 0;
 	valueMenuActive = false;
+	valStepFactor = 1;
+	valRepeatedCount = 0;
 
 	// Menu
 	  _title[0]='\0';  // So it will be blank if not set
@@ -343,7 +345,7 @@ void LCDST7565::valueMenuUp()
 	case VAL_TYPE_MIDI_CC:
 	case VAL_TYPE_INT:
 	{
-		cSynthVal.value += cSynthVal.step;
+		cSynthVal.value += cSynthVal.step * valStepFactor;
 		if(cSynthVal.value > cSynthVal.max)
 		{
 			cSynthVal.value = cSynthVal.max;
@@ -352,7 +354,7 @@ void LCDST7565::valueMenuUp()
 	}
 	case VAL_TYPE_FLOAT:
 	{
-		cSynthVal.fvalue += cSynthVal.fstep;
+		cSynthVal.fvalue += cSynthVal.fstep * valStepFactor;
 		if(cSynthVal.fvalue > cSynthVal.fmax)
 		{
 			cSynthVal.fvalue = cSynthVal.fmax;
@@ -373,7 +375,7 @@ void LCDST7565::valueMenuDown()
 	case VAL_TYPE_MIDI_CC:
 	case VAL_TYPE_INT:
 	{
-		cSynthVal.value -= cSynthVal.step;
+		cSynthVal.value -= cSynthVal.step * valStepFactor;
 		if(cSynthVal.value < cSynthVal.min)
 		{
 			cSynthVal.value = cSynthVal.min;
@@ -382,7 +384,7 @@ void LCDST7565::valueMenuDown()
 	}
 	case VAL_TYPE_FLOAT:
 	{
-		cSynthVal.fvalue -= cSynthVal.fstep;
+		cSynthVal.fvalue -= cSynthVal.fstep * valStepFactor;
 		if(cSynthVal.fvalue < cSynthVal.fmin)
 		{
 			cSynthVal.fvalue = cSynthVal.fmin;
@@ -493,6 +495,18 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 	{
 		if(event == PRESS_EVENT || event == REPEATED_PRESS_EVENT)
 		{
+			if(event == PRESS_EVENT)
+			{
+				valStepFactor = 1;
+			}
+			else
+			{
+				if(++valRepeatedCount >= GUI_INC_VAL_STEP)
+				{
+					valRepeatedCount = 0;
+					valStepFactor++;
+				}
+			}
 			switch(buttonIndex)
 			{
 			case BUT_BACK:
