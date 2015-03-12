@@ -67,7 +67,7 @@ int lastPressDown = 0;
 bool repeatUp = false;
 bool repeatDown = false;
 #define REPEAT_SPEED 80
-#define REPEAT_DELAY 600
+#define REPEAT_DELAY 500
 void loop()
 {
 	if(up.fallingEdge())

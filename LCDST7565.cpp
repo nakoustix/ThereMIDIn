@@ -31,6 +31,7 @@ LCDST7565::LCDST7565()
 		  clineHistory[i] = 0;
 	  }
 
+	  contrast = 0x18;
 	  begin(0x18);
 }
 
@@ -215,7 +216,10 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = 0;
 			cSynthVal.max = 100;
-			cSynthVal.value = 71;
+			int osc = 0;
+			if(selectedPart == MENU_SYNTH_OSC2) osc = 1;
+			else if(selectedPart == MENU_SYNTH_OSC3) osc = 2;
+			cSynthVal.value = (int) (synth->preset.osc[osc].amplitude * 100);
 			cSynthVal.step = 1;
 			strcpy(cSynthVal.name, "Amplitude");
 			strcpy(cSynthVal.unit, "%");
@@ -265,6 +269,17 @@ void LCDST7565::makeValueMenu(int menu)
 			strcpy(cSynthVal.unit, "");
 			break;
 		}
+		case MENU_DISP_CONTRAST:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = 0;
+			cSynthVal.max = 100;
+			cSynthVal.value = contrast;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "Contrast");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
 	}
 }
 
@@ -295,6 +310,7 @@ void LCDST7565::valueMenuUp()
 		break;
 	}
 	}
+	updateValue();
 	update();
 }
 
@@ -324,7 +340,28 @@ void LCDST7565::valueMenuDown()
 		break;
 	}
 	}
+	updateValue();
 	update();
+}
+
+void LCDST7565::updateValue()
+{
+	switch(currentMenu)
+	{
+	case MENU_SYNTH_OSC_AMPLITUDE:
+	{
+		int osc = 0;
+		if(selectedPart == MENU_SYNTH_OSC2) osc = 1;
+		else if(selectedPart == MENU_SYNTH_OSC3) osc = 2;
+		synth->setOSCAmplitude(osc, (float) cSynthVal.value / 100.f);
+		break;
+	}
+	case MENU_DISP_CONTRAST:
+	{
+		st7565_set_brightness(cSynthVal.value * 63 / 100);
+		break;
+	}
+	}
 }
 
 void LCDST7565::setSynthProperty(int value)

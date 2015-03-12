@@ -101,6 +101,7 @@ private:
 	void drawValueMenu();
 	void valueMenuUp();
 	void valueMenuDown();
+	void updateValue();
 	int centerString(char *c);
 
 	Synthesizer *synth;
@@ -115,6 +116,8 @@ private:
 	int clineHistory[MENU_HISTORY_SIZE];
 	int historyPos;
 	bool valueMenuActive;
+
+	uint8_t contrast;
 
 	//===== Menu =====
     MenuItem _menu_items[MAX_ITEMS];

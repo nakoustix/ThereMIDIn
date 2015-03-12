@@ -50,8 +50,8 @@ public:
 	BiquadFilter *getFilter2() { return &flt2; }
 
 
-private:
 	synth_preset_t 		preset;
+private:
 	float 				currentFreq;
 	float 				masterGain;
 
