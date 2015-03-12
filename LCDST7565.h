@@ -50,6 +50,7 @@ typedef struct
 	float fvalue;
 	char unit[UNIT_LEN];
 	char name[LABEL_LEN];
+	uint8_t incSpeed;
 } synth_value_t;
 
 class LCDST7565 : public ST7565 {

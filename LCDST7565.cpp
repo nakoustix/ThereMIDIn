@@ -229,6 +229,7 @@ void LCDST7565::makeValueMenu(int menu)
 			else if(selectedPart == MENU_SYNTH_OSC3) osc = 2;
 			cSynthVal.value = (int) (synth->preset.osc[osc].amplitude * 100);
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Amplitude");
 			strcpy(cSynthVal.unit, "%");
 			break;
@@ -240,6 +241,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 15;
 			cSynthVal.value = 0;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "MIDI Channel");
 			strcpy(cSynthVal.unit, "");
 			break;
@@ -251,6 +253,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 127;
 			cSynthVal.value = 0;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "MIDI Note");
 			strcpy(cSynthVal.unit, "");
 			break;
@@ -262,6 +265,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 127;
 			cSynthVal.value = 0;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "MIDI CC Pitch");
 			strcpy(cSynthVal.unit, "");
 			break;
@@ -273,6 +277,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 127;
 			cSynthVal.value = 0;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "MIDI CC Volume");
 			strcpy(cSynthVal.unit, "");
 			break;
@@ -284,6 +289,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 100;
 			cSynthVal.value = contrast;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Contrast");
 			strcpy(cSynthVal.unit, "%");
 			break;
@@ -295,6 +301,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 24;
 			cSynthVal.value = synth->preset.osc[selectedPartIndex].semitones;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Semitones");
 			strcpy(cSynthVal.unit, "");
 			break;
@@ -306,6 +313,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 100;
 			cSynthVal.value = synth->preset.osc[selectedPartIndex].cents;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Cents");
 			strcpy(cSynthVal.unit, "");
 			break;
@@ -317,6 +325,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 100;
 			cSynthVal.value = synth->preset.osc[selectedPartIndex].wavetable_position;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Wavetable Position");
 			strcpy(cSynthVal.unit, "%");
 			break;
@@ -328,6 +337,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.max = 100;
 			cSynthVal.value = synth->preset.osc[selectedPartIndex].wavetable_position;
 			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Dutycycle");
 			strcpy(cSynthVal.unit, "%");
 			break;
@@ -499,9 +509,9 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 			{
 				valStepFactor = 1;
 			}
-			else
+			else if(valueMenuActive)
 			{
-				if(++valRepeatedCount >= GUI_INC_VAL_STEP)
+				if(++valRepeatedCount >= cSynthVal.incSpeed)
 				{
 					valRepeatedCount = 0;
 					valStepFactor++;

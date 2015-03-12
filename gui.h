@@ -17,7 +17,7 @@
 
 #define GUI_CHARS_PER_LINE 25
 
-#define GUI_INC_VAL_STEP 10
+#define GUI_INC_VAL_STEP 5
 
 enum gui_menu_e
 {
