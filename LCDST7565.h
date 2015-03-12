@@ -108,6 +108,7 @@ private:
 
 	// selected indices
 	int selectedPart;
+	int selectedPartIndex;
 	int currentMenu;
 	synth_value_t cSynthVal;
 	int menuHistory[MENU_HISTORY_SIZE];

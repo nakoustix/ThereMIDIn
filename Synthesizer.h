@@ -26,7 +26,7 @@ public:
 
 	void setOSCAmplitude(int index, float amp);
 	void setOSCWaveform(int index, int wave);
-	void setOSCWavetablePosition(int index, float f);
+	void setOSCWavetablePosition(int index, uint8_t wtpos);
 	void setOSCDutycycle(int index, float f);
 	void setOSCSemitones(int index, int8_t f);
 	void setOSCCents(int index, int8_t f);

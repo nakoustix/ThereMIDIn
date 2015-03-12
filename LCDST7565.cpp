@@ -12,7 +12,7 @@ LCDST7565::LCDST7565()
 	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
 {
 	synth = 0;
-	selectedPart = 0;
+	selectedPart = selectedPartIndex = 0;
 	valueMenuActive = false;
 
 	// Menu
@@ -159,18 +159,24 @@ void LCDST7565::makeMenu(int m)
 		if(m == MENU_SYNTH_OSC1)
 		{
 			setMenuTitle("OSC1");
+			selectedPartIndex = 0;
 		}
 		else if(m == MENU_SYNTH_OSC2)
 		{
 			setMenuTitle("OSC2");
+			selectedPartIndex = 1;
 		}
 		else
 		{
 			setMenuTitle("OSC3");
+			selectedPartIndex = 2;
 		}
 		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::enterMenu);
 		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::enterValueMenu);
 		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::enterValueMenu);
+		addMenuItem("Semitones", MENU_SYNTH_OSC_SEMI, &LCDST7565::enterValueMenu);
+		addMenuItem("Cents", MENU_SYNTH_OSC_CENT, &LCDST7565::enterValueMenu);
+		addMenuItem("Dutycycle", MENU_SYNTH_OSC_DUTY, &LCDST7565::enterValueMenu);
 		break;
 	}
 	case MENU_SYNTH_OSC_WAVEFORM:
@@ -280,6 +286,50 @@ void LCDST7565::makeValueMenu(int menu)
 			strcpy(cSynthVal.unit, "%");
 			break;
 		}
+		case MENU_SYNTH_OSC_SEMI:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = -24;
+			cSynthVal.max = 24;
+			cSynthVal.value = synth->preset.osc[selectedPartIndex].semitones;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "Semitones");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+		case MENU_SYNTH_OSC_CENT:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = -100;
+			cSynthVal.max = 100;
+			cSynthVal.value = synth->preset.osc[selectedPartIndex].cents;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "Cents");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+		case MENU_SYNTH_OSC_WTPOS:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = 0;
+			cSynthVal.max = 100;
+			cSynthVal.value = synth->preset.osc[selectedPartIndex].wavetable_position;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "Wavetable Position");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
+		case MENU_SYNTH_OSC_DUTY:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = 0;
+			cSynthVal.max = 100;
+			cSynthVal.value = synth->preset.osc[selectedPartIndex].wavetable_position;
+			cSynthVal.step = 1;
+			strcpy(cSynthVal.name, "Dutycycle");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
 	}
 }
 
@@ -350,10 +400,22 @@ void LCDST7565::updateValue()
 	{
 	case MENU_SYNTH_OSC_AMPLITUDE:
 	{
-		int osc = 0;
-		if(selectedPart == MENU_SYNTH_OSC2) osc = 1;
-		else if(selectedPart == MENU_SYNTH_OSC3) osc = 2;
-		synth->setOSCAmplitude(osc, (float) cSynthVal.value / 100.f);
+		synth->setOSCAmplitude(selectedPartIndex, (float) cSynthVal.value / 100.f);
+		break;
+	}
+	case MENU_SYNTH_OSC_SEMI:
+	{
+		synth->setOSCSemitones(selectedPartIndex, cSynthVal.value);
+		break;
+	}
+	case MENU_SYNTH_OSC_CENT:
+	{
+		synth->setOSCCents(selectedPartIndex, cSynthVal.value);
+		break;
+	}
+	case MENU_SYNTH_OSC_DUTY:
+	{
+		synth->setOSCDutycycle(selectedPartIndex, cSynthVal.value);
 		break;
 	}
 	case MENU_DISP_CONTRAST:
@@ -654,7 +716,16 @@ void LCDST7565::drawValueMenu()
 		int fillw;
 		if(cSynthVal.type == VAL_TYPE_INT)
 		{
-			fillw = (GUI_VALBAR_WIDTH * cSynthVal.value) / (cSynthVal.max - cSynthVal.min);
+			int val;
+			if(cSynthVal.min < 0)
+			{
+				val = cSynthVal.value - cSynthVal.min;
+			}
+			else
+			{
+				val = cSynthVal.value;
+			}
+			fillw = (GUI_VALBAR_WIDTH * val) / (cSynthVal.max - cSynthVal.min);
 		}
 		else
 		{

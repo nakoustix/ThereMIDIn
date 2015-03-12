@@ -149,10 +149,10 @@ void Synthesizer::setOSCWaveform(int index, int wave)
 	//TODO: update immediately
 }
 
-void Synthesizer::setOSCWavetablePosition(int index, float f)
+void Synthesizer::setOSCWavetablePosition(int index, uint8_t wtpos)
 {
-	preset.osc[index].wavetable_position = f;
-	osc[index]->phase(f);
+	preset.osc[index].wavetable_position = wtpos;
+	osc[index]->phase((float) wtpos * 3.6f);
 }
 
 // FILTER
