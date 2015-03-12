@@ -392,7 +392,7 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 	}
 	else // We are in a menu or sub menu
 	{
-		if(event == PRESS_EVENT)
+		if(event == PRESS_EVENT || event == REPEATED_PRESS_EVENT)
 		{
 			switch(buttonIndex)
 			{

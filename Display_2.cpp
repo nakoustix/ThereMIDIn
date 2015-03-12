@@ -62,16 +62,62 @@ void setup()
 }
 
 uint8_t led = 0xFF;
+int lastPressUp = 0;
+int lastPressDown = 0;
+bool repeatUp = false;
+bool repeatDown = false;
+#define REPEAT_SPEED 80
+#define REPEAT_DELAY 600
 void loop()
 {
 	if(up.fallingEdge())
 	{
 		lcd.buttonEvent(BUT_UP, PRESS_EVENT);
+		lastPressUp = millis();
 	}
+	else if(!up.read())
+	{
+		if(repeatUp && millis() - lastPressUp >= REPEAT_SPEED)
+		{
+			lcd.buttonEvent(BUT_UP, REPEATED_PRESS_EVENT);
+			lastPressUp = millis();
+		}
+		else if(millis() - lastPressUp >= REPEAT_DELAY)
+		{
+			lastPressUp = millis();
+			repeatUp = true;
+		}
+	}
+	else if(up.risingEdge())
+	{
+		repeatUp = false;
+	}
+
+
 	if(down.fallingEdge())
 	{
 		lcd.buttonEvent(BUT_DOWN, PRESS_EVENT);
+		lastPressDown = millis();
 	}
+	else if(!down.read())
+	{
+		if(repeatDown && millis() - lastPressDown >= REPEAT_SPEED)
+		{
+			lcd.buttonEvent(BUT_DOWN, REPEATED_PRESS_EVENT);
+			lastPressDown = millis();
+		}
+		else if(millis() - lastPressDown >= REPEAT_DELAY)
+		{
+			lastPressDown = millis();
+			repeatDown = true;
+		}
+	}
+	else if(down.risingEdge())
+	{
+		repeatDown = false;
+	}
+
+
 	if(back.fallingEdge())
 	{
 		lcd.buttonEvent(BUT_BACK, PRESS_EVENT);
