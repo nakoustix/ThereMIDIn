@@ -17,7 +17,7 @@
 
 #define GUI_CHARS_PER_LINE 25
 #define GUI_CHECKBOX_X 121
-#define GUI_RADIO_X 124
+#define GUI_RADIO_X 118
 
 #define GUI_INC_VAL_STEP 5
 

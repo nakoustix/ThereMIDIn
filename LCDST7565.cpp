@@ -183,14 +183,14 @@ void LCDST7565::makeMenu(int m)
 	case MENU_SYNTH_OSC_WAVEFORM:
 	{
 		setMenuTitle("Waveform");
-		addMenuItem("Sine", SINE, &LCDST7565::setSynthProperty);
-		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthProperty);
-		addMenuItem("Square", SQUARE, &LCDST7565::setSynthProperty);
-		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthProperty);
-		addMenuItem("Sine", SINE, &LCDST7565::setSynthProperty);
-		addMenuItem("Sawtooth", SAWTOOTH, &LCDST7565::setSynthProperty);
-		addMenuItem("Square", SQUARE, &LCDST7565::setSynthProperty);
-		addMenuItem("Triangle", TRIANGLE, &LCDST7565::setSynthProperty);
+		addMenuItemRadiobutton("Sine", SINE);
+		addMenuItemRadiobutton("Sawtooth", SAWTOOTH);
+		addMenuItemRadiobutton("Square", SQUARE);
+		addMenuItemRadiobutton("Triangle", TRIANGLE);
+		addMenuItemRadiobutton("Sine", SINE);
+		addMenuItemRadiobutton("Sawtooth", SAWTOOTH);
+		addMenuItemRadiobutton("Square", SQUARE);
+		selectRadioButton(synth->preset.osc[selectedPartIndex].waveform);
 		break;
 	}
 	}
@@ -738,8 +738,8 @@ void LCDST7565::drawMenu() {
 	  uint8_t i, label_len;
 	  this->clear();
 	  //this->fillrect(0, 0, 128, 7, BLACK);
-	  this->drawstring(0, 0, _title);this->drawstring(LEFT_MARGIN, i+1,
-	                                         _menu_items[_draw_index+i].label);
+	  this->drawstring(0, 0, _title);/*this->drawstring(LEFT_MARGIN, i+1,
+	                                         _menu_items[_draw_index+i].label);*/
 	  i=0;
 	  while ((i<N_LINES-1) & (i<_n_items)) {
 	    this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
@@ -758,14 +758,14 @@ void LCDST7565::drawMenu() {
 	    }
 	    case MENU_ITEM_TYPE_RADIO:
 	    {
-	    	uint8_t y = i * 8 + 4;
-	    	if(_menu_items[_draw_index+1].checked)
+	    	uint8_t y = (i+1) * 8 + 4;
+	    	if(_menu_items[_draw_index+i].checked)
 	    	{
-	    		fillcircle(GUI_RADIO_X, y, 6, BLACK);
+	    		fillcircle(GUI_RADIO_X, y, 2, BLACK);
 	    	}
 	    	else
 	    	{
-	    		drawcircle(GUI_RADIO_X, y, 6, BLACK);
+	    		drawcircle(GUI_RADIO_X, y, 2, BLACK);
 	    	}
 	    	break;
 	    }
@@ -905,5 +905,10 @@ int LCDST7565::centerString(char *c)
 	display();
 	while(1);*/
 	return GUI_CHARS_PER_LINE *5 / 2 - len * 5 / 2;
+}
+
+void LCDST7565::setBackgroundColor(int col)
+{
+	// TODO: Background color!!!
 }
 
