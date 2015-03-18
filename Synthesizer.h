@@ -24,6 +24,7 @@ public:
 
 	void setPreset(synth_preset_t *p);
 
+	void setOSCEnabled(int index, bool en);
 	void setOSCAmplitude(int index, float amp);
 	void setOSCWaveform(int index, int wave);
 	void setOSCWavetablePosition(int index, uint8_t wtpos);

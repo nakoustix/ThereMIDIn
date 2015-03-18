@@ -39,6 +39,13 @@ typedef enum
 	VAL_TYPE_MIDI_CHANNEL
 }synth_value_e;
 
+typedef enum
+{
+	MENU_ITEM_TYPE_NORMAL,
+	MENU_ITEM_TYPE_CHECK,
+	MENU_ITEM_TYPE_RADIO
+} menu_item_e;
+
 typedef struct
 {
 	synth_value_e type;
@@ -59,12 +66,14 @@ public:
 
 	// Struct used for all types of menu items
 	typedef struct {
-	  char label[LABEL_LEN+1];
-	  int value, update_counter;
-	  bool pass_value, funct;
-	  void (*function)(void);
-	  char* (*data_function)(void);
-	  void (LCDST7565::*value_function)(int);
+		menu_item_e type;
+		char label[LABEL_LEN+1];
+		int value, update_counter;
+		bool pass_value, funct;
+		bool checked;
+		void (*function)(void);
+		char* (*data_function)(void);
+		void (LCDST7565::*value_function)(int);
 	} MenuItem;
 
 
@@ -77,14 +86,14 @@ public:
 
 	void setSynthesizerInstance(Synthesizer *synthInstance) {synth = synthInstance; }
 
+	void setBackgroundColor(int col);
+
 	//===== Menu =====
     void update();
     void setMenuTitle(char *title);
-    void addMenuItem(char *label);
-    void addMenuItem(char *label, void (*function)(void));
-    //void addMenuItem(char *label, int value, void (*function)(int));
     void addMenuItem(char *label, int value, void (LCDST7565::*function)(int));
-    void addMenuDrawFunction(void (*function)(void));
+    void addMenuItemCheckbox(char *label, int value, bool checked);
+    void addMenuItemRadiobutton(char *label, int value);
     void drawMenu();
     void clearMenu();
 
@@ -104,6 +113,9 @@ private:
 	void valueMenuDown();
 	void updateValue();
 	int centerString(char *c);
+	void updateCheckbox(int val);
+	void updateRadiobutton(int val);
+	void selectRadioButton(int index);
 
 
 	Synthesizer *synth;
@@ -127,8 +139,6 @@ private:
 	//===== Menu =====
     MenuItem _menu_items[MAX_ITEMS];
     void scroll(int8_t dir);
-    void (*_draw_function)(void);
-    bool _has_draw_funct;
     uint8_t _n_items, _item_index, _current_line, lastItemIndex;
     int8_t _draw_index, lastDrawIndex;
     char _title[LABEL_LEN];

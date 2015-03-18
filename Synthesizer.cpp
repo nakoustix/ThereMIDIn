@@ -118,6 +118,13 @@ void Synthesizer::noteOff()
 }
 
 // OSC
+
+void Synthesizer::setOSCEnabled(int index, bool en)
+{
+	preset.osc[index].enabled = en;
+	osc[index]->setEnabled(en);
+}
+
 void Synthesizer::setOSCAmplitude(int index, float amp)
 {
 	preset.osc[index].amplitude = amp;

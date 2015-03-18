@@ -21,7 +21,6 @@ LCDST7565::LCDST7565()
 	  _title[0]='\0';  // So it will be blank if not set
 	  // Set all flags/counters to 0:
 	  _n_items = _current_line = _draw_index = _item_index = 0;
-	  _has_draw_funct = false;
 	  currentMenu = MENU_HOME;
 	  lastDrawIndex = lastItemIndex = 0;
 	  historyPos = 0;
@@ -622,46 +621,106 @@ void LCDST7565::menuSelect()
 	update();
 }
 
+void LCDST7565::updateCheckbox(int val)
+{
+	if(_menu_items[_item_index].checked)
+	{
+		_menu_items[_item_index].checked = false;
+	}
+	else
+	{
+		_menu_items[_item_index].checked = true;
+	}
+
+	// TODO: update the requested value!
+	switch(currentMenu)
+	{
+	case MENU_SYNTH_OSC1:
+	case MENU_SYNTH_OSC2:
+	case MENU_SYNTH_OSC3:
+	{
+		if(_menu_items[_item_index].checked) synth->setOSCEnabled(selectedPartIndex, true);
+		else synth->setOSCEnabled(selectedPartIndex, false);
+		break;
+	}
+	}
+}
+
+void LCDST7565::updateRadiobutton(int val)
+{
+	for(int i = 0; i < _n_items; i++)
+	{
+		if(i == _item_index)
+		{
+			_menu_items[i].checked = true;
+		}
+		else
+		{
+			_menu_items[i].checked = false;
+		}
+	}
+
+	// TODO: update the requested value!
+	switch(currentMenu)
+	{
+	case MENU_OPERATING_MODE: setOperatingMode(val); break;
+	case MENU_SYNTH_OSC_WAVEFORM: synth->setOSCWaveform(selectedPartIndex, val); break;
+	case MENU_DISP_COLOR: setBackgroundColor(val); break;
+	}
+}
+
 void LCDST7565::setMenuTitle(char *label) {
   strcpy(_title, label); // First line of display, blank if not set
 }
 
-void LCDST7565::addMenuItem(char *label) {
-  if (_n_items >= MAX_ITEMS) return;
-  if (strlen(label) > LABEL_LEN) return;
-  MenuItem i;
-  strcpy(i.label, label);
-  i.pass_value = i.funct = false; // Calls no function
-  _menu_items[_n_items++] = i;
-}
-
-void LCDST7565::addMenuItem(char *label, void (*function)(void)) {
-  if (_n_items >= MAX_ITEMS) return;
-  if (strlen(label) > LABEL_LEN) return;
-  MenuItem i;
-  strcpy(i.label, label);
-  i.pass_value = false;   // No value to pass to function
-  i.funct = true;         // Has a function to call on select
-  i.function = function;  // Function to call
-  _menu_items[_n_items++] = i;
-}
 
 void LCDST7565::addMenuItem(char *label, int value,  void (LCDST7565::*function)(int)) {
   if (_n_items >= MAX_ITEMS) return;
   if (strlen(label) > LABEL_LEN) return;
   MenuItem i;
   strcpy(i.label, label);
+  i.type = MENU_ITEM_TYPE_NORMAL;
   i.pass_value = i.funct = true; // Has function and should pass it a value
   i.value = value;               // Value to pass to function on select
   i.value_function = function;   // Function to call
   _menu_items[_n_items++] = i;
 }
 
-void LCDST7565::addMenuDrawFunction(void (*function)(void)) {
-  _has_draw_funct = 1;       // Should call function before (*lcd).display()
-  _draw_function = function; // Function to call
+void LCDST7565::addMenuItemCheckbox(char *label, int value, bool checked)
+{
+	if (_n_items >= MAX_ITEMS) return;
+	if (strlen(label) > LABEL_LEN) return;
+	MenuItem i;
+	strcpy(i.label, label);
+	i.type = MENU_ITEM_TYPE_CHECK;
+	i.checked = checked;
+	i.pass_value = i.funct = true; // Has function and should pass it a value
+	i.value = value;               // Value to pass to function on select
+	i.value_function = &LCDST7565::updateCheckbox;   // Function to call
+	_menu_items[_n_items++] = i;
 }
 
+void LCDST7565::addMenuItemRadiobutton(char *label, int value)
+{
+	if (_n_items >= MAX_ITEMS) return;
+	if (strlen(label) > LABEL_LEN) return;
+	MenuItem i;
+	strcpy(i.label, label);
+	i.type = MENU_ITEM_TYPE_RADIO;
+	i.checked = false;
+	i.pass_value = i.funct = true; // Has function and should pass it a value
+	i.value = value;               // Value to pass to function on select
+	i.value_function = &LCDST7565::updateRadiobutton;   // Function to call
+	_menu_items[_n_items++] = i;
+}
+
+void LCDST7565::selectRadioButton(int index)
+{
+	// Reset all other radios in the menu
+	for(int i = 0; i < _n_items; i++) 	_menu_items[i].checked = false;
+	// Set the requested radio
+	_menu_items[index].checked = true;
+}
 
 void LCDST7565::scroll(int8_t dir) {
   // Only scrolls screen if possible, doesn't change _item_index
@@ -676,47 +735,71 @@ void LCDST7565::scroll(int8_t dir) {
 
 //========== DRAW ================= DRAW =================== DRAW ====================
 void LCDST7565::drawMenu() {
-  uint8_t i, label_len;
-  this->clear();
-  //this->fillrect(0, 0, 128, 7, BLACK);
-  this->drawstring(centerString(_title), 0, _title);this->drawstring(LEFT_MARGIN, i+1,
-                                         _menu_items[_draw_index+i].label);
-  this->invertRect(0,0, 128, 8);
-  i=0;
-  while ((i<N_LINES-1) & (i<_n_items)) {
-    this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
-    i++;
-  }
+	  uint8_t i, label_len;
+	  this->clear();
+	  //this->fillrect(0, 0, 128, 7, BLACK);
+	  this->drawstring(0, 0, _title);this->drawstring(LEFT_MARGIN, i+1,
+	                                         _menu_items[_draw_index+i].label);
+	  i=0;
+	  while ((i<N_LINES-1) & (i<_n_items)) {
+	    this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
+	    switch(_menu_items[_draw_index+i].type)
+	    {
+	    case MENU_ITEM_TYPE_CHECK:
+	    {
+	    	uint8_t y = i * 8 + 1;
+	    	drawrect(GUI_CHECKBOX_X, y, 6, 6, BLACK);
+	    	if(_menu_items[_draw_index+i].checked)
+	    	{
+	    		drawline(GUI_CHECKBOX_X, y, GUI_CHECKBOX_X + 6, y + 6, BLACK);
+	    		drawline(GUI_CHECKBOX_X, y + 6, GUI_CHECKBOX_X + 6, y, BLACK);
+	    	}
+	    	break;
+	    }
+	    case MENU_ITEM_TYPE_RADIO:
+	    {
+	    	uint8_t y = i * 8 + 4;
+	    	if(_menu_items[_draw_index+1].checked)
+	    	{
+	    		fillcircle(GUI_RADIO_X, y, 6, BLACK);
+	    	}
+	    	else
+	    	{
+	    		drawcircle(GUI_RADIO_X, y, 6, BLACK);
+	    	}
+	    	break;
+	    }
+	    }
+	    i++;
+	  }
 
-  // Draw arrow to indicate current item:
-  this->drawline(0, 11+(8*_current_line), LEFT_MARGIN-5,
-                                                11+(8*_current_line), BLACK);
-  this->drawline(LEFT_MARGIN-5, 8+(8*_current_line), LEFT_MARGIN-2,
-                                                11+(8*_current_line), BLACK);
-  this->drawline(LEFT_MARGIN-5, 14+(8*_current_line), LEFT_MARGIN-2,
-                                                11+(8*_current_line), BLACK);
-  this->drawline(LEFT_MARGIN-5, 14+(8*_current_line), LEFT_MARGIN-5,
-                                                8+(8*_current_line), BLACK);
+	  // Draw arrow to indicate current item:
+	  this->drawline(0, 11+(8*_current_line), LEFT_MARGIN-5,
+	                                                11+(8*_current_line), BLACK);
+	  this->drawline(LEFT_MARGIN-5, 8+(8*_current_line), LEFT_MARGIN-2,
+	                                                11+(8*_current_line), BLACK);
+	  this->drawline(LEFT_MARGIN-5, 14+(8*_current_line), LEFT_MARGIN-2,
+	                                                11+(8*_current_line), BLACK);
+	  this->drawline(LEFT_MARGIN-5, 14+(8*_current_line), LEFT_MARGIN-5,
+	                                                8+(8*_current_line), BLACK);
 
 
-  // Draw up arrow if there are items above view
-  if (_draw_index > 0) {
-    this->drawline(123, 11, 125, 8, BLACK);
-    this->drawline(127, 11, 125, 8, BLACK);
-  }
-  // Draw down arrow if there are items below view
-  if ((_n_items - _draw_index) >= N_LINES) {
-    this->drawline(123, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
-    this->drawline(127, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
-  }
+	  // Draw up arrow if there are items above view
+	  if (_draw_index > 0) {
+	    this->drawline(123, 11, 125, 8, BLACK);
+	    this->drawline(127, 11, 125, 8, BLACK);
+	  }
+	  // Draw down arrow if there are items below view
+	  if ((_n_items - _draw_index) >= N_LINES) {
+	    this->drawline(123, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
+	    this->drawline(127, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
+	  }
 
-  if (_has_draw_funct) _draw_function();
-  //this->drawrect(20,20,20,20, BLACK);
-  this->drawMenuButton(BUT_UP, 0);
-  this->drawMenuButton(BUT_DOWN, 1);
-  this->drawMenuButton(BUT_BACK, 2);
-  this->drawMenuButton(BUT_OK, 3);
-  this->display();
+	  this->drawMenuButton(BUT_UP, 0);
+	  this->drawMenuButton(BUT_DOWN, 1);
+	  this->drawMenuButton(BUT_BACK, 2);
+	  this->drawMenuButton(BUT_OK, 3);
+	  this->display();
 }
 
 
@@ -808,7 +891,6 @@ void LCDST7565::drawValueMenu()
 
 void LCDST7565::clearMenu() {
   _n_items = _current_line = _draw_index = _item_index = 0;
-  _has_draw_funct = 0;
   _title[0]='\0';  // So it will be blank if set_title() not called
   this->clear();
   //this->display();
