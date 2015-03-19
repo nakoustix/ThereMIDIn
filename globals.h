@@ -98,6 +98,7 @@ typedef struct
 typedef struct
 {
 	float frequency;
+	float resonance;
 } flt1_configuration_t;
 
 typedef struct

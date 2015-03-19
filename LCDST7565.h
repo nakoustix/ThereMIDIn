@@ -52,9 +52,10 @@ typedef struct
 	int min, max;
 	int value;
 	int step;
-	int fstep;
+	float fstep;
 	float fmin, fmax;
 	float fvalue;
+	int fdigits;
 	char unit[UNIT_LEN];
 	char name[LABEL_LEN];
 	uint8_t incSpeed;

@@ -109,8 +109,9 @@ void LCDST7565::makeMenu(int m)
 	case MENU_OPERATING_MODE:
 	{
 		setMenuTitle("Operating Mode");
-		addMenuItem("MIDI / USB-MIDI", (int) OPMODE_MIDI, &LCDST7565::setOperatingMode);
-		addMenuItem("Standalone", (int) OPMODE_STANDALONE, &LCDST7565::setOperatingMode);
+		addMenuItemRadiobutton("MIDI / USB-MIDI", (int) OPMODE_MIDI);
+		addMenuItemRadiobutton("Standalone", (int) OPMODE_STANDALONE);
+		selectRadioButton(0);
 		break;
 	}
 	case MENU_DISP:
@@ -120,6 +121,17 @@ void LCDST7565::makeMenu(int m)
 		addMenuItem("Brightness", (int) MENU_DISP_BRIGHT, &LCDST7565::enterValueMenu);
 		addMenuItem("Contrast", (int) MENU_DISP_CONTRAST, &LCDST7565::enterValueMenu);
 		break;
+	}
+	case MENU_DISP_COLOR:
+	{
+		setMenuTitle("Background Color");
+		addMenuItemRadiobutton("Red", BGCOL_RED);
+		addMenuItemRadiobutton("Yellow", BGCOL_YELLOW);
+		addMenuItemRadiobutton("Green", BGCOL_GREEN);
+		addMenuItemRadiobutton("Cyan", BGCOL_CYAN);
+		addMenuItemRadiobutton("Blue", BGCOL_BLUE);
+		addMenuItemRadiobutton("VIOLET", BGCOL_VIOLET);
+		selectRadioButton(0);
 	}
 	case MENU_MIDI:
 	{
@@ -172,6 +184,7 @@ void LCDST7565::makeMenu(int m)
 			setMenuTitle("OSC3");
 			selectedPartIndex = 2;
 		}
+		addMenuItemCheckbox("Enabled:", 0, synth->preset.osc[selectedPartIndex].enabled);
 		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::enterMenu);
 		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::enterValueMenu);
 		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::enterValueMenu);
@@ -191,6 +204,33 @@ void LCDST7565::makeMenu(int m)
 		addMenuItemRadiobutton("Sawtooth", SAWTOOTH);
 		addMenuItemRadiobutton("Square", SQUARE);
 		selectRadioButton(synth->preset.osc[selectedPartIndex].waveform);
+		break;
+	}
+	case MENU_SYNTH_FILTER:
+	{
+		setMenuTitle("Filter");
+		addMenuItem("Serial / Parallel", MENU_SYNTH_FILTER_SERPAR, &LCDST7565::enterValueMenu);
+		addMenuItem("Filter 1", MENU_SYNTH_FILTER1, &LCDST7565::enterMenu);
+		addMenuItem("Filter 2", MENU_SYNTH_FILTER2, &LCDST7565::enterMenu);
+		break;
+	}
+	case MENU_SYNTH_FILTER1:
+	{
+		selectedPartIndex = 0;
+		setMenuTitle("Filter 1");
+		addMenuItemCheckbox("Enabled:", 0, true);
+		addMenuItem("Filter Type", MENU_SYNTH_FILTER1_TYPE, &LCDST7565::enterMenu);
+		addMenuItem("Frequency", MENU_SYNTH_FILTER1_FREQ, &LCDST7565::enterValueMenu);
+		addMenuItem("Resonance", MENU_SYNTH_FILTER1_RESO, &LCDST7565::enterValueMenu);
+		break;
+	}
+	case MENU_SYNTH_FILTER1_TYPE:
+	{
+		setMenuTitle("Filter Type");
+		addMenuItemRadiobutton("Lowpass", 0);
+		addMenuItemRadiobutton("Bandpass", 1);
+		addMenuItemRadiobutton("Highpass", 2);
+		selectRadioButton(0);
 		break;
 	}
 	}
@@ -341,6 +381,32 @@ void LCDST7565::makeValueMenu(int menu)
 			strcpy(cSynthVal.unit, "%");
 			break;
 		}
+		case MENU_SYNTH_FILTER1_FREQ:
+		{
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 10;
+			cSynthVal.fmax = 20000;
+			cSynthVal.fvalue = synth->preset.filter.flt1.frequency;
+			cSynthVal.fstep = 0.1f;
+			cSynthVal.fdigits = 1;
+			cSynthVal.incSpeed = 3;
+			strcpy(cSynthVal.name, "Frequency");
+			strcpy(cSynthVal.unit, "Hz");
+			break;
+		}
+		case MENU_SYNTH_FILTER1_RESO:
+		{
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 0.0;
+			cSynthVal.fmax = 3.0;
+			cSynthVal.fvalue = synth->preset.filter.flt1.resonance;
+			cSynthVal.fstep = 0.001;
+			cSynthVal.fdigits = 3;
+			cSynthVal.incSpeed = 5;
+			strcpy(cSynthVal.name, "Resonance");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
 	}
 }
 
@@ -363,7 +429,7 @@ void LCDST7565::valueMenuUp()
 	}
 	case VAL_TYPE_FLOAT:
 	{
-		cSynthVal.fvalue += cSynthVal.fstep * valStepFactor;
+		cSynthVal.fvalue += cSynthVal.fstep * (float) valStepFactor;
 		if(cSynthVal.fvalue > cSynthVal.fmax)
 		{
 			cSynthVal.fvalue = cSynthVal.fmax;
@@ -393,7 +459,7 @@ void LCDST7565::valueMenuDown()
 	}
 	case VAL_TYPE_FLOAT:
 	{
-		cSynthVal.fvalue -= cSynthVal.fstep * valStepFactor;
+		cSynthVal.fvalue -= cSynthVal.fstep * (float)valStepFactor;
 		if(cSynthVal.fvalue < cSynthVal.fmin)
 		{
 			cSynthVal.fvalue = cSynthVal.fmin;
@@ -513,7 +579,7 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 				if(++valRepeatedCount >= cSynthVal.incSpeed)
 				{
 					valRepeatedCount = 0;
-					valStepFactor++;
+					valStepFactor *= 2;
 				}
 			}
 			switch(buttonIndex)
@@ -735,11 +801,11 @@ void LCDST7565::scroll(int8_t dir) {
 
 //========== DRAW ================= DRAW =================== DRAW ====================
 void LCDST7565::drawMenu() {
-	  uint8_t i, label_len;
-	  this->clear();
-	  //this->fillrect(0, 0, 128, 7, BLACK);
-	  this->drawstring(0, 0, _title);/*this->drawstring(LEFT_MARGIN, i+1,
-	                                         _menu_items[_draw_index+i].label);*/
+	uint8_t i, label_len;
+	this->clear();
+	//this->fillrect(0, 0, 128, 7, BLACK);
+	this->drawstring(centerString(_title), 0, _title);
+	invertRect(0,0,128,8);
 	  i=0;
 	  while ((i<N_LINES-1) & (i<_n_items)) {
 	    this->drawstring(LEFT_MARGIN, i+1, _menu_items[_draw_index+i].label);
@@ -747,8 +813,8 @@ void LCDST7565::drawMenu() {
 	    {
 	    case MENU_ITEM_TYPE_CHECK:
 	    {
-	    	uint8_t y = i * 8 + 1;
-	    	drawrect(GUI_CHECKBOX_X, y, 6, 6, BLACK);
+	    	uint8_t y = (i+1) * 8 + 1;
+	    	drawrect(GUI_CHECKBOX_X, y, 7, 7, BLACK);
 	    	if(_menu_items[_draw_index+i].checked)
 	    	{
 	    		drawline(GUI_CHECKBOX_X, y, GUI_CHECKBOX_X + 6, y + 6, BLACK);
@@ -873,7 +939,14 @@ void LCDST7565::drawValueMenu()
 	}
 	case VAL_TYPE_FLOAT:
 	{
-		sprintf(str, "%f%s", cSynthVal.fvalue, cSynthVal.unit);
+		char fmt[9];
+		char dig[3];
+		fmt[0] = 0;
+		strcat(fmt,"%.");
+		sprintf(dig, "%i", cSynthVal.fdigits);
+		strcat(fmt, dig);
+		strcat(fmt, "f%s");
+		sprintf(str, fmt, cSynthVal.fvalue, cSynthVal.unit);
 		break;
 	}
 	}

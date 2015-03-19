@@ -47,8 +47,9 @@ void setup()
 
 	synth_preset.filter.dryWet = 1.f;
 	synth_preset.filter.serParCF = 1.f;
-	synth_preset.filter.flt1.frequency = 800;
-	synth_preset.filter.flt2.frequency = 1200;
+	synth_preset.filter.flt1.frequency = 800.f;
+	synth_preset.filter.flt1.resonance = 1.0f;
+	synth_preset.filter.flt2.frequency = 1200.f;
 
 	synth.setPreset(&synth_preset);
 

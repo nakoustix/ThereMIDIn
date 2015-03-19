@@ -85,6 +85,9 @@ void Synthesizer::setPreset(synth_preset_t *p)
 		setOSCSemitones(i, p->osc[i].semitones);
 		setOSCCents(i, p->osc[i].cents);
 	}
+	// Filter section
+
+	preset = *p;
 }
 
 void Synthesizer::setFrequency(float f)
