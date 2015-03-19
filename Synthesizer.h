@@ -49,6 +49,7 @@ public:
 	float getOSCFrequency(int i, float baseFreq);
 
 	void enable(float gain);
+	void gotoSleep();
 
 	void disconnect();
 	void reconnect();

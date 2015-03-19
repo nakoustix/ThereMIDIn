@@ -68,12 +68,6 @@ enum gui_menu_e
 
 };
 
-enum operating_mode_e
-{
-	OPMODE_MIDI,
-	OPMODE_STANDALONE
-};
-
 
 typedef enum
 {

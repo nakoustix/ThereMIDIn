@@ -86,6 +86,7 @@ public:
 	void enterMenu(int m);
 
 	void setSynthesizerInstance(Synthesizer *synthInstance) {synth = synthInstance; }
+	void setMIDIConfig(midi_configuration_t *c) {midiConf = c;}
 
 	void setBackgroundColor(int col);
 
@@ -120,6 +121,7 @@ private:
 
 
 	Synthesizer *synth;
+	midi_configuration_t *midiConf;
 
 	// selected indices
 	int selectedPart;

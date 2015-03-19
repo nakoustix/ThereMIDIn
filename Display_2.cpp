@@ -13,6 +13,8 @@ Bounce enter = Bounce(16, 5);
 LCDST7565 lcd;
 Synthesizer synth;
 synth_preset_t synth_preset;
+midi_configuration_t midiConf;
+thereMIDIn_configuration_t config;
 
 int lastTime = 0;
 void setup()
@@ -23,45 +25,52 @@ void setup()
 	pinMode(16, INPUT_PULLUP);
 	pinMode(13, OUTPUT);
 
+	config.synthConf.masterGain = 0.45f;
+	config.synthConf.baseFreq = 500;
 
-	synth_preset.osc[OSC1].enabled = true;
-	synth_preset.osc[OSC1].amplitude = 0.707f;
-	synth_preset.osc[OSC1].waveform = SINE;
-	synth_preset.osc[OSC1].wavetable_position = 0;
-	synth_preset.osc[OSC1].duty = 0.5f;
-	synth_preset.osc[OSC1].semitones = 0;
-	synth_preset.osc[OSC1].cents = 0;
+	config.synthConf.preset.osc[OSC1].enabled = true;
+	config.synthConf.preset.osc[OSC1].amplitude = 0.707f;
+	config.synthConf.preset.osc[OSC1].waveform = SINE;
+	config.synthConf.preset.osc[OSC1].wavetable_position = 0;
+	config.synthConf.preset.osc[OSC1].duty = 0.5f;
+	config.synthConf.preset.osc[OSC1].semitones = 0;
+	config.synthConf.preset.osc[OSC1].cents = 0;
 
-	synth_preset.osc[OSC2].enabled = false;
-	synth_preset.osc[OSC2].amplitude = 0.3;
-	synth_preset.osc[OSC2].waveform = SQUARE;
-	synth_preset.osc[OSC2].wavetable_position = 0;
-	synth_preset.osc[OSC2].duty = 0.5f;
-	synth_preset.osc[OSC2].semitones = 0;
-	synth_preset.osc[OSC2].cents = 0;
+	config.synthConf.preset.osc[OSC2].enabled = false;
+	config.synthConf.preset.osc[OSC2].amplitude = 0.3;
+	config.synthConf.preset.osc[OSC2].waveform = SQUARE;
+	config.synthConf.preset.osc[OSC2].wavetable_position = 0;
+	config.synthConf.preset.osc[OSC2].duty = 0.5f;
+	config.synthConf.preset.osc[OSC2].semitones = 0;
+	config.synthConf.preset.osc[OSC2].cents = 0;
 
-	synth_preset.osc[OSC3].enabled = false;
-	synth_preset.osc[OSC3].amplitude = 0.6;
-	synth_preset.osc[OSC3].waveform = SAWTOOTH;
-	synth_preset.osc[OSC3].wavetable_position = 0;
-	synth_preset.osc[OSC3].duty = 0.5f;
-	synth_preset.osc[OSC3].semitones = 0;
-	synth_preset.osc[OSC3].cents = 0;
+	config.synthConf.preset.osc[OSC3].enabled = false;
+	config.synthConf.preset.osc[OSC3].amplitude = 0.6;
+	config.synthConf.preset.osc[OSC3].waveform = SAWTOOTH;
+	config.synthConf.preset.osc[OSC3].wavetable_position = 0;
+	config.synthConf.preset.osc[OSC3].duty = 0.5f;
+	config.synthConf.preset.osc[OSC3].semitones = 0;
+	config.synthConf.preset.osc[OSC3].cents = 0;
 
-	synth_preset.filter.dryWet = 1.f;
-	synth_preset.filter.serParCF = 0.5f;
-	synth_preset.filter.flt1.enabled = true;
-	synth_preset.filter.flt1.frequency = 800.f;
-	synth_preset.filter.flt1.resonance = 1.0f;
-	synth_preset.filter.flt2.frequency = 1200.f;
+	config.synthConf.preset.filter.dryWet = 1.f;
+	config.synthConf.preset.filter.serParCF = 0.5f;
+	config.synthConf.preset.filter.flt1.enabled = true;
+	config.synthConf.preset.filter.flt1.frequency = 800.f;
+	config.synthConf.preset.filter.flt1.resonance = 1.0f;
+	config.synthConf.preset.filter.flt2.frequency = 1200.f;
 
-	synth.setPreset(&synth_preset);
+	synth.setPreset(&config.synthConf.preset);
 
-	synth.enable(0.4f);
-	synth.noteOn();
-	synth.setFrequency(500);
+	config.midiConf.pitch.midi_cc = 0;
+	config.midiConf.pitch.use14Bit = true;
+	config.midiConf.volume.midi_cc = 1;
+	config.midiConf.volume.use14Bit = true;
+
+	config.operatingMode = OPMODE_SYNTH;
+	operatingModeChanged();
 
 	lcd.setSynthesizerInstance(&synth);
+	lcd.setMIDIConfig(&config.midiConf);
 	lcd.enterMenu(MENU_MAIN);
 	lcd.update();
 }
@@ -148,5 +157,24 @@ void loop()
 		{
 			led = 0xFF;
 		}
+	}
+}
+
+void midiConfigChanged()
+{
+
+}
+
+void operatingModeChanged()
+{
+	if(config.operatingMode == OPMODE_MIDI)
+	{
+		synth.gotoSleep();
+	}
+	else
+	{
+		synth.enable(config.synthConf.masterGain);
+		synth.noteOn();
+		synth.setFrequency(config.synthConf.baseFreq);
 	}
 }

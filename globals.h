@@ -36,6 +36,8 @@
 #define MIDI_CC_PITCHBEND	128
 #define MIDI_CC_VOLUME		16
 
+extern void midiConfigChanged();
+extern void operatingModeChanged();
 
 typedef enum
 {
@@ -73,6 +75,24 @@ typedef struct
 	uint32_t base_freq;
 	uint32_t top_freq;
 } antenna_configuration_t;
+
+typedef struct
+{
+	bool use14Bit;
+	uint8_t midi_cc;
+} midi_antenna_conf_t;
+
+typedef struct
+{
+	midi_antenna_conf_t pitch, volume;
+} midi_configuration_t;
+
+enum OperatingMode
+{
+	OPMODE_SYNTH,
+	OPMODE_MIDI
+};
+
 
 typedef enum
 {
@@ -123,6 +143,13 @@ typedef struct
 
 typedef struct
 {
+	float masterGain;
+	float baseFreq;
+	synth_preset_t preset;
+} synth_configuration_t;
+
+typedef struct
+{
 	uint8_t destination;
 	uint16_t min, max;
 } synth_link_t;
@@ -135,9 +162,11 @@ typedef struct
 
 typedef struct
 {
+	int operatingMode;
 	antenna_configuration_t antenna[2];
 	knob_configuration_t knob[4];
-	synth_preset_t synth_preset;
+	midi_configuration_t midiConf;
+	synth_configuration_t synthConf;
 } thereMIDIn_configuration_t;
 
 

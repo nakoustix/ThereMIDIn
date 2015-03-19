@@ -53,6 +53,11 @@ void Synthesizer::enable(float gain)
 	AudioMemoryUsageMaxReset();
 }
 
+void Synthesizer::gotoSleep()
+{
+	audioShield.disable();
+}
+
 void Synthesizer::disconnect()
 {
 	//TODO: uncomment this!!!
@@ -94,9 +99,10 @@ void Synthesizer::setPreset(synth_preset_t *p)
 void Synthesizer::setFrequency(float f)
 {
 	AudioNoInterrupts();
+	currentFreq = f;
 	for(int i = 0; i < 3; i++)
 	{
-		osc[i]->frequency(f);
+		osc[i]->frequency(getOSCFrequency(i, f));
 	}
 	AudioInterrupts();
 }

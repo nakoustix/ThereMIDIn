@@ -110,7 +110,7 @@ void LCDST7565::makeMenu(int m)
 	{
 		setMenuTitle("Operating Mode");
 		addMenuItemRadiobutton("MIDI / USB-MIDI", (int) OPMODE_MIDI);
-		addMenuItemRadiobutton("Standalone", (int) OPMODE_STANDALONE);
+		addMenuItemRadiobutton("Synthesizer", (int) OPMODE_SYNTH);
 		selectRadioButton(0);
 		break;
 	}
@@ -260,22 +260,6 @@ void LCDST7565::makeValueMenu(int menu)
 	switch(menu)
 	{
 	//TODO: set current value when enter a valueMenu
-		case MENU_SYNTH_OSC_AMPLITUDE:
-		{
-			cSynthVal.type = VAL_TYPE_FLOAT;
-			cSynthVal.fmin = 0.f;
-			cSynthVal.fmax = 100.f;
-			int osc = 0;
-			if(selectedPart == MENU_SYNTH_OSC2) osc = 1;
-			else if(selectedPart == MENU_SYNTH_OSC3) osc = 2;
-			cSynthVal.fvalue = synth->preset.osc[osc].amplitude * 100.f;
-			cSynthVal.fstep = 0.01;
-			cSynthVal.fdigits = 2;
-			cSynthVal.incSpeed = 5;
-			strcpy(cSynthVal.name, "Amplitude");
-			strcpy(cSynthVal.unit, "%");
-			break;
-		}
 		case MENU_MIDI_CHANNEL:
 		{
 			cSynthVal.type = VAL_TYPE_MIDI_CHANNEL;
@@ -325,6 +309,19 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Contrast");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
+		case MENU_SYNTH_OSC_AMPLITUDE:
+		{
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 0.f;
+			cSynthVal.fmax = 100.f;
+			cSynthVal.fvalue = synth->preset.osc[selectedPartIndex].amplitude * 100.f;
+			cSynthVal.fstep = 0.01;
+			cSynthVal.fdigits = 2;
+			cSynthVal.incSpeed = 5;
+			strcpy(cSynthVal.name, "Amplitude");
 			strcpy(cSynthVal.unit, "%");
 			break;
 		}
@@ -517,6 +514,18 @@ void LCDST7565::updateValue()
 	case MENU_DISP_CONTRAST:
 	{
 		st7565_set_brightness(cSynthVal.value * 63 / 100);
+		break;
+	}
+	case MENU_MIDI_CC_PITCH:
+	{
+		midiConf->pitch.midi_cc = cSynthVal.value;
+		midiConfigChanged();
+		break;
+	}
+	case MENU_MIDI_CC_VOL:
+	{
+		midiConf->volume.midi_cc = cSynthVal.value;
+		midiConfigChanged();
 		break;
 	}
 	}
@@ -732,6 +741,18 @@ void LCDST7565::updateCheckbox(int val)
 	{
 		if(_menu_items[_item_index].checked) synth->setFilter1Enabled(false);
 		else synth->setFilter1Enabled(true);
+		break;
+	}
+	case MENU_MIDI_CC_PITCH:
+	{
+		midiConf->pitch.use14Bit = _menu_items[_item_index].checked;
+		midiConfigChanged();
+		break;
+	}
+	case MENU_MIDI_CC_VOL:
+	{
+		midiConf->volume.use14Bit = _menu_items[_item_index].checked;
+		midiConfigChanged();
 		break;
 	}
 	}
