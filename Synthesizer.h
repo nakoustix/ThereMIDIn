@@ -36,7 +36,7 @@ public:
 	void setOSCWaveform(int index, int wave);
 	void setOSCWavetablePosition(int index, float wtpos);
 	void setOSCDutycycle(int index, float f);
-	void setOSCSemitones(int index, int8_t f);
+	void setOSCSemitones(int index, int s);
 	void setOSCCents(int index, int8_t f);
 
 	void setFilterSerParCrossfade(float f);
