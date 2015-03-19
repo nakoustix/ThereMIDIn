@@ -319,7 +319,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
-			cSynthVal.fvalue = synth->config->masterGain;
+			cSynthVal.fvalue = synth->config->masterGain * 100.f;
 			cSynthVal.fstep = 0.01;
 			cSynthVal.fdigits = 2;
 			cSynthVal.incSpeed = 5;
@@ -511,7 +511,7 @@ void LCDST7565::updateValue()
 	{
 	case MENU_SYNTH_GAIN:
 	{
-		synth->setMasterGain(cSynthVal.fvalue);
+		synth->setMasterGain(cSynthVal.fvalue / 100.f);
 		break;
 	}
 	case MENU_SYNTH_BASEFREQ:

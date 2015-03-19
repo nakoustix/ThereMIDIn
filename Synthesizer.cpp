@@ -9,6 +9,8 @@
 
 Synthesizer::Synthesizer()
 {
+	preset = new synth_preset_t;
+	config = new synth_configuration_t;
 	osc[0] = &osc1;
 	osc[1] = &osc2;
 	osc[2] = &osc3;
