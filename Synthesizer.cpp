@@ -186,11 +186,10 @@ void Synthesizer::setOSCSemitones(int index, int8_t i)
 void Synthesizer::setOSCWaveform(int index, int wave)
 {
 	preset.osc[index].waveform = wave;
-	//noteOff();
 	noteOn();
 }
 
-void Synthesizer::setOSCWavetablePosition(int index, uint8_t wtpos)
+void Synthesizer::setOSCWavetablePosition(int index, float wtpos)
 {
 	preset.osc[index].wavetable_position = wtpos;
 	osc[index]->phase((float) wtpos * 3.6f);

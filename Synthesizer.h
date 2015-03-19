@@ -30,7 +30,7 @@ public:
 	void setOSCEnabled(int index, bool en);
 	void setOSCAmplitude(int index, float amp);
 	void setOSCWaveform(int index, int wave);
-	void setOSCWavetablePosition(int index, uint8_t wtpos);
+	void setOSCWavetablePosition(int index, float wtpos);
 	void setOSCDutycycle(int index, float f);
 	void setOSCSemitones(int index, int8_t f);
 	void setOSCCents(int index, int8_t f);

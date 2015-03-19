@@ -262,14 +262,15 @@ void LCDST7565::makeValueMenu(int menu)
 	//TODO: set current value when enter a valueMenu
 		case MENU_SYNTH_OSC_AMPLITUDE:
 		{
-			cSynthVal.type = VAL_TYPE_INT;
-			cSynthVal.min = 0;
-			cSynthVal.max = 100;
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 0.f;
+			cSynthVal.fmax = 100.f;
 			int osc = 0;
 			if(selectedPart == MENU_SYNTH_OSC2) osc = 1;
 			else if(selectedPart == MENU_SYNTH_OSC3) osc = 2;
-			cSynthVal.value = (int) (synth->preset.osc[osc].amplitude * 100);
-			cSynthVal.step = 1;
+			cSynthVal.fvalue = synth->preset.osc[osc].amplitude * 100.f;
+			cSynthVal.fstep = 0.01;
+			cSynthVal.fdigits = 2;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Amplitude");
 			strcpy(cSynthVal.unit, "%");
@@ -353,11 +354,12 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_OSC_WTPOS:
 		{
-			cSynthVal.type = VAL_TYPE_INT;
-			cSynthVal.min = 0;
-			cSynthVal.max = 100;
-			cSynthVal.value = synth->preset.osc[selectedPartIndex].wavetable_position;
-			cSynthVal.step = 1;
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 0.f;
+			cSynthVal.fmax = 100.f;
+			cSynthVal.fvalue = synth->preset.osc[selectedPartIndex].wavetable_position;
+			cSynthVal.fstep = 0.01;
+			cSynthVal.fdigits = 2;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Wavetable Position");
 			strcpy(cSynthVal.unit, "%");
@@ -484,7 +486,7 @@ void LCDST7565::updateValue()
 	{
 	case MENU_SYNTH_OSC_AMPLITUDE:
 	{
-		synth->setOSCAmplitude(selectedPartIndex, (float) cSynthVal.value / 100.f);
+		synth->setOSCAmplitude(selectedPartIndex, cSynthVal.fvalue / 100.f);
 		break;
 	}
 	case MENU_SYNTH_OSC_SEMI:
@@ -499,7 +501,7 @@ void LCDST7565::updateValue()
 	}
 	case MENU_SYNTH_OSC_DUTY:
 	{
-		synth->setOSCDutycycle(selectedPartIndex, cSynthVal.value);
+		synth->setOSCDutycycle(selectedPartIndex, cSynthVal.fvalue);
 		break;
 	}
 	case MENU_SYNTH_FILTER1_FREQ:

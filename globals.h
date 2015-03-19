@@ -88,7 +88,7 @@ typedef struct
 {
 	bool enabled;
 	uint8_t waveform;
-	uint8_t wavetable_position;
+	float wavetable_position;
 	float duty;
 	float amplitude;
 	int8_t semitones;
