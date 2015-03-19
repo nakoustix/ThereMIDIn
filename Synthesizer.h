@@ -17,6 +17,9 @@
 #include "AudioObjects/BiquadFilter.h"
 #include "globals.h"
 
+#define SEMI_FACTOR 1.05946309090909090909f
+#define CENT_FACTOR 1.0005777895f
+
 class Synthesizer {
 public:
 	Synthesizer();
@@ -42,6 +45,8 @@ public:
 	void setFrequency(float f);
 	void noteOn();
 	void noteOff();
+
+	float getOSCFrequency(int i, float baseFreq);
 
 	void enable(float gain);
 

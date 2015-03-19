@@ -106,9 +106,39 @@ void Synthesizer::noteOn()
 	AudioNoInterrupts();
 	for(int i = 0; i < 3; i++)
 	{
-		osc[i]->begin(preset.osc[i].amplitude, currentFreq, preset.osc[i].waveform);
+		osc[i]->begin(preset.osc[i].amplitude, getOSCFrequency(i, currentFreq), preset.osc[i].waveform);
 	}
 	AudioInterrupts();
+}
+
+float Synthesizer::getOSCFrequency(int i, float baseFreq)
+{
+	int semi,cent;
+	semi = preset.osc[i].semitones;
+	if(semi < 0)
+	{
+		semi *= -1;
+		for(int s; s < semi; s++)
+			baseFreq /= SEMI_FACTOR;
+	}
+	else
+	{
+		for(int s = 0; s < semi; s++)
+			baseFreq *= SEMI_FACTOR;
+	}
+	cent = preset.osc[i].cents;
+	if(cent < 0)
+	{
+		cent *= -1;
+		for(int c = 0; c < cent; c++)
+			baseFreq /= CENT_FACTOR;
+	}
+	else
+	{
+		for(int c = 0; c < cent; c++)
+			baseFreq *= CENT_FACTOR;
+	}
+	return baseFreq;
 }
 
 void Synthesizer::noteOff()
@@ -138,7 +168,7 @@ void Synthesizer::setOSCAmplitude(int index, float amp)
 void Synthesizer::setOSCCents(int index, int8_t i)
 {
 	preset.osc[index].cents = i;
-	//TODO: update immediately
+	osc[index]->frequency(getOSCFrequency(i, currentFreq));
 }
 
 void Synthesizer::setOSCDutycycle(int index, float f)
@@ -150,7 +180,7 @@ void Synthesizer::setOSCDutycycle(int index, float f)
 void Synthesizer::setOSCSemitones(int index, int8_t i)
 {
 	preset.osc[index].semitones = i;
-	//TODO: update immediately
+	osc[index]->frequency(getOSCFrequency(i, currentFreq));
 }
 
 void Synthesizer::setOSCWaveform(int index, int wave)
