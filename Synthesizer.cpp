@@ -184,6 +184,12 @@ void Synthesizer::setFilterDryWet(float f)
 	fltDryWet.gain(1, coeff);
 }
 
+void Synthesizer::setFilter1Enabled(bool en)
+{
+	preset.filter.flt1.enabled = en;
+	flt1.setEnabled(en);
+}
+
 void Synthesizer::setFilter1Freq(float f)
 {
 	preset.filter.flt1.frequency = f;

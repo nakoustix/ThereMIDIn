@@ -220,7 +220,7 @@ void LCDST7565::makeMenu(int m)
 	{
 		selectedPartIndex = 0;
 		setMenuTitle("Filter 1");
-		addMenuItemCheckbox("Enabled:", 0, true);
+		addMenuItemCheckbox("Bypass:", 0, synth->preset.filter.flt1.enabled);
 		addMenuItem("Filter Type", MENU_SYNTH_FILTER1_TYPE, &LCDST7565::enterMenu);
 		addMenuItem("Frequency", MENU_SYNTH_FILTER1_FREQ, &LCDST7565::enterValueMenu);
 		addMenuItem("Resonance", MENU_SYNTH_FILTER1_RESO, &LCDST7565::enterValueMenu);
@@ -724,6 +724,12 @@ void LCDST7565::updateCheckbox(int val)
 	{
 		if(_menu_items[_item_index].checked) synth->setOSCEnabled(selectedPartIndex, true);
 		else synth->setOSCEnabled(selectedPartIndex, false);
+		break;
+	}
+	case MENU_SYNTH_FILTER1:
+	{
+		if(_menu_items[_item_index].checked) synth->setFilter1Enabled(false);
+		else synth->setFilter1Enabled(true);
 		break;
 	}
 	}
