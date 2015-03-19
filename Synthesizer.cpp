@@ -141,6 +141,7 @@ float Synthesizer::getOSCFrequency(int i, float baseFreq)
 	int semi,cent;
 	float f;
 	semi = preset->osc[i].semitones;
+	cent = preset->osc[i].cents;
 	if(semi == 0)
 	{
 		f = baseFreq;
@@ -153,6 +154,15 @@ float Synthesizer::getOSCFrequency(int i, float baseFreq)
 	{
 		semi *= -1;
 		f = baseFreq * semif_minus[semi-1];
+	}
+	if(cent > 0)
+	{
+		f *= centf_plus[cent-1];
+	}
+	else if(cent < 0)
+	{
+		cent *= -1;
+		f *= centf_minus[cent-1];
 	}
 	/*if(semi < 0)
 	{
@@ -208,7 +218,7 @@ void Synthesizer::setOSCAmplitude(int index, float amp)
 void Synthesizer::setOSCCents(int index, int8_t i)
 {
 	preset->osc[index].cents = i;
-	osc[index]->frequency(getOSCFrequency(i, currentFreq));
+	osc[index]->frequency(getOSCFrequency(index, currentFreq));
 }
 
 void Synthesizer::setOSCDutycycle(int index, float f)
