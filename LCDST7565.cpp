@@ -145,14 +145,19 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MIDI_CC_PITCH:
 	{
 		setMenuTitle("MIDI CC Pitch");
-		//addMenuItem("14Bit Pitch-Bend",
-		addMenuItem("Standard MIDI CC", MENU_MIDI_CC_STANDARD, &LCDST7565::enterValueMenu);
+		addMenuItemRadiobutton("14Bit Pitchbend", 0);
+		addMenuItemRadiobutton("Standard MIDI CC", 1);
+		addMenuItem("MIDI CC", MENU_MIDI_CC_PITCH, &LCDST7565::enterValueMenu);
+		selectRadioButton(0);
 		break;
 	}
 	case MENU_MIDI_CC_VOL:
 	{
 		setMenuTitle("MIDI CC Volume");
-		addMenuItem("Standard MIDI CC", MENU_MIDI_CC_STANDARD, &LCDST7565::enterValueMenu);
+		addMenuItemRadiobutton("14Bit ModWheel", 0);
+		addMenuItemRadiobutton("Standard MIDI CC", 1);
+		addMenuItem("MIDI CC", MENU_MIDI_CC_VOL, &LCDST7565::enterValueMenu);
+		selectRadioButton(0);
 		break;
 	}
 	case MENU_SYNTH:
@@ -298,17 +303,6 @@ void LCDST7565::makeValueMenu(int menu)
 			break;
 		}
 		case MENU_MIDI_CC_PITCH:
-		{
-			cSynthVal.type = VAL_TYPE_MIDI_CC;
-			cSynthVal.min = 0;
-			cSynthVal.max = 127;
-			cSynthVal.value = 0;
-			cSynthVal.step = 1;
-			cSynthVal.incSpeed = 5;
-			strcpy(cSynthVal.name, "MIDI CC Pitch");
-			strcpy(cSynthVal.unit, "");
-			break;
-		}
 		case MENU_MIDI_CC_VOL:
 		{
 			cSynthVal.type = VAL_TYPE_MIDI_CC;
@@ -317,7 +311,10 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.value = 0;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
-			strcpy(cSynthVal.name, "MIDI CC Volume");
+			if(menu == MENU_MIDI_CC_PITCH)
+				strcpy(cSynthVal.name, "MIDI CC Pitch");
+			else
+				strcpy(cSynthVal.name, "MIDI CC Vol");
 			strcpy(cSynthVal.unit, "");
 			break;
 		}
@@ -378,6 +375,19 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Dutycycle");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
+		case MENU_SYNTH_FILTER_SERPAR:
+		{
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 0.f;
+			cSynthVal.fmax = 100.f;
+			cSynthVal.fvalue = synth->preset.filter.serParCF * 100.f;
+			cSynthVal.fstep = 0.01;
+			cSynthVal.fdigits = 2;
+			cSynthVal.incSpeed = 5;
+			strcpy(cSynthVal.name, "Serial / Parallel");
 			strcpy(cSynthVal.unit, "%");
 			break;
 		}
