@@ -163,6 +163,8 @@ void LCDST7565::makeMenu(int m)
 	case MENU_SYNTH:
 	{
 		setMenuTitle("Synthesizer");
+		addMenuItem("Master Gain", MENU_SYNTH_GAIN, &LCDST7565::enterValueMenu);
+		addMenuItem("Basefrequency", MENU_SYNTH_BASEFREQ, &LCDST7565::enterValueMenu);
 		addMenuItem("OSC1", (int) MENU_SYNTH_OSC1, &LCDST7565::enterMenu);
 		addMenuItem("OSC2", (int) MENU_SYNTH_OSC2, &LCDST7565::enterMenu);
 		addMenuItem("OSC3", MENU_SYNTH_OSC3, &LCDST7565::enterMenu);
@@ -189,7 +191,7 @@ void LCDST7565::makeMenu(int m)
 			setMenuTitle("OSC3");
 			selectedPartIndex = 2;
 		}
-		addMenuItemCheckbox("Enabled:", 0, synth->preset.osc[selectedPartIndex].enabled);
+		addMenuItemCheckbox("Enabled:", 0, synth->preset->osc[selectedPartIndex].enabled);
 		addMenuItem("Waveform", MENU_SYNTH_OSC_WAVEFORM, &LCDST7565::enterMenu);
 		addMenuItem("Wavetable-Position", MENU_SYNTH_OSC_WTPOS, &LCDST7565::enterValueMenu);
 		addMenuItem("Amplitude", MENU_SYNTH_OSC_AMPLITUDE, &LCDST7565::enterValueMenu);
@@ -205,7 +207,7 @@ void LCDST7565::makeMenu(int m)
 		addMenuItemRadiobutton("Sawtooth", SAWTOOTH);
 		addMenuItemRadiobutton("Square", SQUARE);
 		addMenuItemRadiobutton("Triangle", TRIANGLE);
-		selectRadioButton(synth->preset.osc[selectedPartIndex].waveform);
+		selectRadioButton(synth->preset->osc[selectedPartIndex].waveform);
 		break;
 	}
 	case MENU_SYNTH_FILTER:
@@ -220,7 +222,7 @@ void LCDST7565::makeMenu(int m)
 	{
 		selectedPartIndex = 0;
 		setMenuTitle("Filter 1");
-		addMenuItemCheckbox("Bypass:", 0, synth->preset.filter.flt1.enabled);
+		addMenuItemCheckbox("Bypass:", 0, synth->preset->filter.flt1.enabled);
 		addMenuItem("Filter Type", MENU_SYNTH_FILTER1_TYPE, &LCDST7565::enterMenu);
 		addMenuItem("Frequency", MENU_SYNTH_FILTER1_FREQ, &LCDST7565::enterValueMenu);
 		addMenuItem("Resonance", MENU_SYNTH_FILTER1_RESO, &LCDST7565::enterValueMenu);
@@ -312,12 +314,38 @@ void LCDST7565::makeValueMenu(int menu)
 			strcpy(cSynthVal.unit, "%");
 			break;
 		}
+		case MENU_SYNTH_GAIN:
+		{
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 0.f;
+			cSynthVal.fmax = 100.f;
+			cSynthVal.fvalue = synth->config->masterGain;
+			cSynthVal.fstep = 0.01;
+			cSynthVal.fdigits = 2;
+			cSynthVal.incSpeed = 5;
+			strcpy(cSynthVal.name, "MasterGain");
+			strcpy(cSynthVal.unit, "%");
+			break;
+		}
+		case MENU_SYNTH_BASEFREQ:
+		{
+			cSynthVal.type = VAL_TYPE_FLOAT;
+			cSynthVal.fmin = 10;
+			cSynthVal.fmax = 10000;
+			cSynthVal.fvalue = synth->config->baseFreq;
+			cSynthVal.fstep = 0.1f;
+			cSynthVal.fdigits = 1;
+			cSynthVal.incSpeed = 3;
+			strcpy(cSynthVal.name, "Basefrequency");
+			strcpy(cSynthVal.unit, "Hz");
+			break;
+		}
 		case MENU_SYNTH_OSC_AMPLITUDE:
 		{
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
-			cSynthVal.fvalue = synth->preset.osc[selectedPartIndex].amplitude * 100.f;
+			cSynthVal.fvalue = synth->preset->osc[selectedPartIndex].amplitude * 100.f;
 			cSynthVal.fstep = 0.01;
 			cSynthVal.fdigits = 2;
 			cSynthVal.incSpeed = 5;
@@ -330,7 +358,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = -24;
 			cSynthVal.max = 24;
-			cSynthVal.value = synth->preset.osc[selectedPartIndex].semitones;
+			cSynthVal.value = synth->preset->osc[selectedPartIndex].semitones;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Semitones");
@@ -342,7 +370,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = -100;
 			cSynthVal.max = 100;
-			cSynthVal.value = synth->preset.osc[selectedPartIndex].cents;
+			cSynthVal.value = synth->preset->osc[selectedPartIndex].cents;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Cents");
@@ -354,7 +382,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
-			cSynthVal.fvalue = synth->preset.osc[selectedPartIndex].wavetable_position;
+			cSynthVal.fvalue = synth->preset->osc[selectedPartIndex].wavetable_position;
 			cSynthVal.fstep = 0.01;
 			cSynthVal.fdigits = 2;
 			cSynthVal.incSpeed = 5;
@@ -367,7 +395,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = 0;
 			cSynthVal.max = 100;
-			cSynthVal.value = synth->preset.osc[selectedPartIndex].wavetable_position;
+			cSynthVal.value = synth->preset->osc[selectedPartIndex].wavetable_position;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Dutycycle");
@@ -379,7 +407,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
-			cSynthVal.fvalue = synth->preset.filter.serParCF * 100.f;
+			cSynthVal.fvalue = synth->preset->filter.serParCF * 100.f;
 			cSynthVal.fstep = 0.01;
 			cSynthVal.fdigits = 2;
 			cSynthVal.incSpeed = 5;
@@ -392,7 +420,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 10;
 			cSynthVal.fmax = 20000;
-			cSynthVal.fvalue = synth->preset.filter.flt1.frequency;
+			cSynthVal.fvalue = synth->preset->filter.flt1.frequency;
 			cSynthVal.fstep = 0.1f;
 			cSynthVal.fdigits = 1;
 			cSynthVal.incSpeed = 3;
@@ -405,7 +433,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.0;
 			cSynthVal.fmax = 3.0;
-			cSynthVal.fvalue = synth->preset.filter.flt1.resonance;
+			cSynthVal.fvalue = synth->preset->filter.flt1.resonance;
 			cSynthVal.fstep = 0.001;
 			cSynthVal.fdigits = 3;
 			cSynthVal.incSpeed = 5;
@@ -481,6 +509,16 @@ void LCDST7565::updateValue()
 {
 	switch(currentMenu)
 	{
+	case MENU_SYNTH_GAIN:
+	{
+		synth->setMasterGain(cSynthVal.fvalue);
+		break;
+	}
+	case MENU_SYNTH_BASEFREQ:
+	{
+		synth->setFrequency(cSynthVal.fvalue);
+		break;
+	}
 	case MENU_SYNTH_OSC_AMPLITUDE:
 	{
 		synth->setOSCAmplitude(selectedPartIndex, cSynthVal.fvalue / 100.f);

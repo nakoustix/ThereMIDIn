@@ -59,7 +59,7 @@ void setup()
 	config.synthConf.preset.filter.flt1.resonance = 1.0f;
 	config.synthConf.preset.filter.flt2.frequency = 1200.f;
 
-	synth.setPreset(&config.synthConf.preset);
+	synth.setConfiguration(&config.synthConf);
 
 	config.midiConf.pitch.midi_cc = 0;
 	config.midiConf.pitch.use14Bit = true;

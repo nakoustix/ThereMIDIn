@@ -26,6 +26,10 @@ public:
 	virtual ~Synthesizer();
 
 	void setPreset(synth_preset_t *p);
+	void setConfiguration(synth_configuration_t *config);
+
+	void setMasterGain(float g);
+	void setBaseFrequency(float f);
 
 	void setOSCEnabled(int index, bool en);
 	void setOSCAmplitude(int index, float amp);
@@ -59,7 +63,8 @@ public:
 	BiquadFilter *getFilter2() { return &flt2; }
 
 
-	synth_preset_t 		preset;
+	synth_preset_t 		*preset;
+	synth_configuration_t *config;
 private:
 	float 				currentFreq;
 	float 				masterGain;

@@ -74,6 +74,16 @@ void Synthesizer::reconnect()
 	AudioInterrupts();
 }
 
+void Synthesizer::setMasterGain(float g)
+{
+	audioShield.volume(g);
+}
+
+void Synthesizer::setBaseFrequency(float f)
+{
+
+}
+
 void Synthesizer::setPreset(synth_preset_t *p)
 {
 	// FILTER SECTION
@@ -93,7 +103,13 @@ void Synthesizer::setPreset(synth_preset_t *p)
 	}
 	// Filter section
 
-	preset = *p;
+	preset = p;
+}
+
+void Synthesizer::setConfiguration(synth_configuration_t *config)
+{
+	this->config = config;
+	this->setPreset(&config->preset);
 }
 
 void Synthesizer::setFrequency(float f)
@@ -112,7 +128,7 @@ void Synthesizer::noteOn()
 	AudioNoInterrupts();
 	for(int i = 0; i < 3; i++)
 	{
-		osc[i]->begin(preset.osc[i].amplitude, getOSCFrequency(i, currentFreq), preset.osc[i].waveform);
+		osc[i]->begin(preset->osc[i].amplitude, getOSCFrequency(i, currentFreq), preset->osc[i].waveform);
 	}
 	AudioInterrupts();
 }
@@ -120,7 +136,7 @@ void Synthesizer::noteOn()
 float Synthesizer::getOSCFrequency(int i, float baseFreq)
 {
 	int semi,cent;
-	semi = preset.osc[i].semitones;
+	semi = preset->osc[i].semitones;
 	if(semi < 0)
 	{
 		semi *= -1;
@@ -132,7 +148,7 @@ float Synthesizer::getOSCFrequency(int i, float baseFreq)
 		for(int s = 0; s < semi; s++)
 			baseFreq *= SEMI_FACTOR;
 	}
-	cent = preset.osc[i].cents;
+	cent = preset->osc[i].cents;
 	if(cent < 0)
 	{
 		cent *= -1;
@@ -161,50 +177,50 @@ void Synthesizer::noteOff()
 
 void Synthesizer::setOSCEnabled(int index, bool en)
 {
-	preset.osc[index].enabled = en;
+	preset->osc[index].enabled = en;
 	osc[index]->setEnabled(en);
 }
 
 void Synthesizer::setOSCAmplitude(int index, float amp)
 {
-	preset.osc[index].amplitude = amp;
+	preset->osc[index].amplitude = amp;
 	osc[index]->amplitude(amp);
 }
 
 void Synthesizer::setOSCCents(int index, int8_t i)
 {
-	preset.osc[index].cents = i;
+	preset->osc[index].cents = i;
 	osc[index]->frequency(getOSCFrequency(i, currentFreq));
 }
 
 void Synthesizer::setOSCDutycycle(int index, float f)
 {
-	preset.osc[index].duty = f;
+	preset->osc[index].duty = f;
 	osc[index]->pulseWidth(f);
 }
 
 void Synthesizer::setOSCSemitones(int index, int8_t i)
 {
-	preset.osc[index].semitones = i;
+	preset->osc[index].semitones = i;
 	osc[index]->frequency(getOSCFrequency(i, currentFreq));
 }
 
 void Synthesizer::setOSCWaveform(int index, int wave)
 {
-	preset.osc[index].waveform = wave;
+	preset->osc[index].waveform = wave;
 	noteOn();
 }
 
 void Synthesizer::setOSCWavetablePosition(int index, float wtpos)
 {
-	preset.osc[index].wavetable_position = wtpos;
+	preset->osc[index].wavetable_position = wtpos;
 	osc[index]->phase((float) wtpos * 3.6f);
 }
 
 // FILTER
 void Synthesizer::setFilterSerParCrossfade(float f)
 {
-	preset.filter.serParCF = f;
+	preset->filter.serParCF = f;
 	float coeff = 1.f - f;
 	serParMixer.gain(0, f);
 	serParMixer.gain(1, coeff);
@@ -213,7 +229,7 @@ void Synthesizer::setFilterSerParCrossfade(float f)
 
 void Synthesizer::setFilterDryWet(float f)
 {
-	preset.filter.dryWet = f;
+	preset->filter.dryWet = f;
 	float coeff = 1.f - f;
 	fltDryWet.gain(0, f);
 	fltDryWet.gain(1, coeff);
@@ -221,19 +237,19 @@ void Synthesizer::setFilterDryWet(float f)
 
 void Synthesizer::setFilter1Enabled(bool en)
 {
-	preset.filter.flt1.enabled = en;
+	preset->filter.flt1.enabled = en;
 	flt1.setEnabled(en);
 }
 
 void Synthesizer::setFilter1Freq(float f)
 {
-	preset.filter.flt1.frequency = f;
+	preset->filter.flt1.frequency = f;
 	flt1.frequency(f);
 }
 
 void Synthesizer::setFilter1Reso(float f)
 {
-	preset.filter.flt1.resonance = f;
+	preset->filter.flt1.resonance = f;
 	flt1.resonance(f);
 }
 
