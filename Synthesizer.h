@@ -35,6 +35,7 @@ public:
 	void setFilterSerParCrossfade(float f);
 	void setFilterDryWet(float f);
 	void setFilter1Freq(float f);
+	void setFilter1Reso(float f);
 	void setFilter2Freq(float f);
 
 	void setFrequency(float f);

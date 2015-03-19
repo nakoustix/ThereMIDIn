@@ -24,6 +24,7 @@ void setup()
 	pinMode(13, OUTPUT);
 
 
+	synth_preset.osc[OSC1].enabled = true;
 	synth_preset.osc[OSC1].amplitude = 0.707f;
 	synth_preset.osc[OSC1].waveform = SINE;
 	synth_preset.osc[OSC1].wavetable_position = 0;
@@ -31,6 +32,7 @@ void setup()
 	synth_preset.osc[OSC1].semitones = 0;
 	synth_preset.osc[OSC1].cents = 0;
 
+	synth_preset.osc[OSC2].enabled = false;
 	synth_preset.osc[OSC2].amplitude = 0.3;
 	synth_preset.osc[OSC2].waveform = SQUARE;
 	synth_preset.osc[OSC2].wavetable_position = 0;
@@ -38,6 +40,7 @@ void setup()
 	synth_preset.osc[OSC2].semitones = 0;
 	synth_preset.osc[OSC2].cents = 0;
 
+	synth_preset.osc[OSC3].enabled = false;
 	synth_preset.osc[OSC3].amplitude = 0.6;
 	synth_preset.osc[OSC3].waveform = SAWTOOTH;
 	synth_preset.osc[OSC3].wavetable_position = 0;
@@ -53,9 +56,9 @@ void setup()
 
 	synth.setPreset(&synth_preset);
 
-	/*synth.enable(0.4f);
+	synth.enable(0.4f);
 	synth.noteOn();
-	synth.setFrequency(500);*/
+	synth.setFrequency(500);
 
 	lcd.setSynthesizerInstance(&synth);
 	lcd.enterMenu(MENU_MAIN);

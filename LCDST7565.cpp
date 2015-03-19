@@ -205,9 +205,6 @@ void LCDST7565::makeMenu(int m)
 		addMenuItemRadiobutton("Sawtooth", SAWTOOTH);
 		addMenuItemRadiobutton("Square", SQUARE);
 		addMenuItemRadiobutton("Triangle", TRIANGLE);
-		addMenuItemRadiobutton("Sine", SINE);
-		addMenuItemRadiobutton("Sawtooth", SAWTOOTH);
-		addMenuItemRadiobutton("Square", SQUARE);
 		selectRadioButton(synth->preset.osc[selectedPartIndex].waveform);
 		break;
 	}
@@ -503,6 +500,16 @@ void LCDST7565::updateValue()
 	case MENU_SYNTH_OSC_DUTY:
 	{
 		synth->setOSCDutycycle(selectedPartIndex, cSynthVal.value);
+		break;
+	}
+	case MENU_SYNTH_FILTER1_FREQ:
+	{
+		synth->setFilter1Freq(cSynthVal.fvalue);
+		break;
+	}
+	case MENU_SYNTH_FILTER1_RESO:
+	{
+		synth->setFilter1Reso(cSynthVal.fvalue);
 		break;
 	}
 	case MENU_DISP_CONTRAST:

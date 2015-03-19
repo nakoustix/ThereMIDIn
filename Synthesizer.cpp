@@ -78,6 +78,7 @@ void Synthesizer::setPreset(synth_preset_t *p)
 	// OSC SECTION
 	for(int i = 0; i < 3; i++)
 	{
+		setOSCEnabled(i, p->osc[i].enabled);
 		setOSCAmplitude(i, p->osc[i].amplitude);
 		setOSCWaveform(i, p->osc[i].waveform);
 		setOSCWavetablePosition(i, p->osc[i].wavetable_position);
@@ -155,8 +156,8 @@ void Synthesizer::setOSCSemitones(int index, int8_t i)
 void Synthesizer::setOSCWaveform(int index, int wave)
 {
 	preset.osc[index].waveform = wave;
-
-	//TODO: update immediately
+	//noteOff();
+	noteOn();
 }
 
 void Synthesizer::setOSCWavetablePosition(int index, uint8_t wtpos)
@@ -185,7 +186,14 @@ void Synthesizer::setFilterDryWet(float f)
 
 void Synthesizer::setFilter1Freq(float f)
 {
+	preset.filter.flt1.frequency = f;
 	flt1.frequency(f);
+}
+
+void Synthesizer::setFilter1Reso(float f)
+{
+	preset.filter.flt1.resonance = f;
+	flt1.resonance(f);
 }
 
 void Synthesizer::setFilter2Freq(float f)
