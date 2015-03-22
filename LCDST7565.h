@@ -108,6 +108,8 @@ private:
 	void menuUp();
 	void menuDown();
 	void menuSelect();
+	void enterModulationMenu(int menu);
+	void makeModulationMenu(int menu);
 	void makeValueMenu(int menu);
 	void enterValueMenu(int menu);
 	void drawValueMenu();

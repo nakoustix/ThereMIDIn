@@ -164,30 +164,6 @@ float Synthesizer::getOSCFrequency(int i, float baseFreq)
 		cent *= -1;
 		f *= centf_minus[cent-1];
 	}
-	/*if(semi < 0)
-	{
-		semi *= -1;
-		for(int s; s < semi; s++)
-			baseFreq /= SEMI_FACTOR;
-	}
-	else
-	{
-		for(int s = 0; s < semi; s++)
-			baseFreq *= SEMI_FACTOR;
-	}
-	cent = preset->osc[i].cents;
-	if(cent < 0)
-	{
-		cent *= -1;
-		for(int c = 0; c < cent; c++)
-			baseFreq /= CENT_FACTOR;
-	}
-	else
-	{
-		for(int c = 0; c < cent; c++)
-			baseFreq *= CENT_FACTOR;
-	}*/
-	//return f;
 	return f;
 }
 

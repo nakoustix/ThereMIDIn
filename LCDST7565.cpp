@@ -165,10 +165,30 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("Synthesizer");
 		addMenuItem("Master Gain", MENU_SYNTH_GAIN, &LCDST7565::enterValueMenu);
 		addMenuItem("Basefrequency", MENU_SYNTH_BASEFREQ, &LCDST7565::enterValueMenu);
+		addMenuItem("Mod.-Matrix", MENU_SYNTH_MATRIX, &LCDST7565::enterMenu);
 		addMenuItem("OSC1", (int) MENU_SYNTH_OSC1, &LCDST7565::enterMenu);
 		addMenuItem("OSC2", (int) MENU_SYNTH_OSC2, &LCDST7565::enterMenu);
 		addMenuItem("OSC3", MENU_SYNTH_OSC3, &LCDST7565::enterMenu);
 		addMenuItem("Filter", MENU_SYNTH_FILTER, &LCDST7565::enterMenu);
+		break;
+	}
+	case MENU_SYNTH_MATRIX:
+	{
+		setMenuTitle("Modulation Source");
+		addMenuItem("Pitch-Antenna", MENU_SYNTH_MOD_SRC_PITCH, &LCDST7565::enterMenu);
+		addMenuItem("Volume-Antenna", MENU_SYNTH_MOD_SRC_VOL, &LCDST7565::enterMenu);
+		break;
+	}
+	case MENU_SYNTH_MOD_SRC_PITCH:
+	{
+		setMenuTitle("Pitch Destinations");
+		addMenuItem("Global Pitch", MOD_DST_GLOBAL_PITCH, &LCDST7565::enterModulationMenu);
+		break;
+	}
+	case MENU_SYNTH_MOD_SRC_VOL:
+	{
+		setMenuTitle("Volume Destinations");
+		addMenuItem("Global Volume", MOD_DST_GLOBAL_VOL, &LCDST7565::enterModulationMenu);
 		break;
 	}
 	case MENU_SYNTH_OSC1:
@@ -237,6 +257,27 @@ void LCDST7565::makeMenu(int m)
 		selectRadioButton(0);
 		break;
 	}
+	}
+}
+
+void LCDST7565::enterModulationMenu(int menu)
+{
+	if(historyPos > MENU_HISTORY_SIZE - 1) return;
+	menuHistory[historyPos] = currentMenu;
+	itemIndexHistory[historyPos] = _item_index;
+	drawIndexHistory[historyPos] = _draw_index;
+	clineHistory[historyPos] = _current_line;
+	historyPos++;
+	currentMenu = menu;
+	clearMenu();
+	makeModulationMenu(menu);
+	update();
+}
+
+void LCDST7565::makeModulationMenu(int menu)
+{
+	switch(currentMenu)
+	{
 	}
 }
 
@@ -336,7 +377,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.fstep = 0.1f;
 			cSynthVal.fdigits = 1;
 			cSynthVal.incSpeed = 3;
-			strcpy(cSynthVal.name, "Basefrequency");
+			strcpy(cSynthVal.name, "Basefreq.");
 			strcpy(cSynthVal.unit, "Hz");
 			break;
 		}
