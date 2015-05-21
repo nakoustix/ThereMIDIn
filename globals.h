@@ -36,9 +36,6 @@
 #define MIDI_CC_PITCHBEND	128
 #define MIDI_CC_VOLUME		16
 
-extern void midiConfigChanged();
-extern void operatingModeChanged();
-
 typedef enum
 {
 	CT_PITCH = 0,
@@ -91,6 +88,7 @@ typedef struct
 typedef struct
 {
 	bool use14Bit;
+	bool muted;
 	uint8_t cc;
 } midi_antenna_conf_t;
 
@@ -102,11 +100,11 @@ typedef struct
 	uint8_t velocity;
 } midi_configuration_t;
 
-enum OperatingMode
+typedef enum OperatingMode
 {
 	OPMODE_SYNTH,
 	OPMODE_MIDI
-};
+} opmode_e;
 
 
 typedef enum
@@ -189,6 +187,9 @@ extern float semif_plus[24];
 extern float semif_minus[24];
 extern float centf_plus[100];
 extern float centf_minus[100];
+
+extern void midiConfigChanged();
+extern void setOperatingMode( opmode_e mode );
 
 
 #endif /* GLOBALS_H_ */

@@ -103,7 +103,6 @@ public:
 private:
 	void drawHome();
 	void setSynthProperty(int value);
-	void setOperatingMode(int value);
 	void calibrateAntennas(int value);
 	void menuBack();
 	void menuUp();

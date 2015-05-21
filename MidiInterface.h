@@ -22,12 +22,17 @@ public:
 
 	void setConfiguration(midi_configuration_t *config);
 	void reNote();
+	void noteOn();
+	void noteOff();
 
 	void setChannel(uint8_t chn);
 	void setBaseNote(uint8_t note);
 	void setVelocity(uint8_t velo);
 	void setCC(control_type_e control, uint8_t cc);
 	void setUse14Bit(control_type_e control, bool use);
+
+	void muteControl(control_type_e control, bool mute);
+	bool isMuted(control_type_e control);
 
 	void setOffset(control_type_e control, float offset);
 

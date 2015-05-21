@@ -7,6 +7,7 @@
 
 #include "LCDST7565.h"
 #include <stdio.h>
+#include "globals.h"
 
 LCDST7565::LCDST7565()
 	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
@@ -137,7 +138,9 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MIDI:
 	{
 		setMenuTitle("MIDI Settings");
-		addMenuItem("Noe On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
+		addMenuItem("Note On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
+		addMenuItemCheckbox("Mute Pitch", CT_PITCH, midi->configuration()->antenna[CT_PITCH].muted );
+		addMenuItemCheckbox("Mute Volume", CT_VOLUME, midi->configuration()->antenna[CT_VOLUME].muted );
 		addMenuItem("Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Velocity", MENU_MIDI_VELOCITY, &LCDST7565::enterValueMenu);
@@ -148,19 +151,25 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MIDI_CC_PITCH:
 	{
 		setMenuTitle("MIDI CC Pitch");
-		addMenuItemRadiobutton("14Bit Pitchbend", 0);
-		addMenuItemRadiobutton("Standard MIDI CC", 1);
+		addMenuItemRadiobutton("14Bit Pitchbend", 1);
+		addMenuItemRadiobutton("Standard MIDI CC", 0);
 		addMenuItem("CC", MENU_MIDI_CC_PITCH, &LCDST7565::enterValueMenu);
-		selectRadioButton(0);
+		if( midi->configuration()->antenna[CT_PITCH].use14Bit )
+			selectRadioButton( 0 );
+		else
+			selectRadioButton( 1 );
 		break;
 	}
 	case MENU_MIDI_CC_VOL:
 	{
 		setMenuTitle("MIDI CC Volume");
-		addMenuItemRadiobutton("14Bit ModWheel", 0);
-		addMenuItemRadiobutton("Standard MIDI CC", 1);
+		addMenuItemRadiobutton("14Bit ModWheel", 1);
+		addMenuItemRadiobutton("Standard MIDI CC", 0);
 		addMenuItem("CC", MENU_MIDI_CC_VOL, &LCDST7565::enterValueMenu);
-		selectRadioButton(0);
+		if( midi->configuration()->antenna[CT_VOLUME].use14Bit )
+			selectRadioButton( 0 );
+		else
+			selectRadioButton( 1 );
 		break;
 	}
 	case MENU_SYNTH:
@@ -306,7 +315,13 @@ void LCDST7565::makeValueMenu(int menu)
 {
 	switch(menu)
 	{
-	//TODO: set current value when enter a valueMenu
+		//TODO: set current value when enter a valueMenu
+		case MENU_MIDI_RENOTE:
+		{
+			midi->reNote();
+			menuBack();
+			break;
+		}
 		case MENU_MIDI_CHANNEL:
 		{
 			cSynthVal.type = VAL_TYPE_MIDI_CHANNEL;
@@ -634,12 +649,6 @@ void LCDST7565::updateValue()
 		st7565_set_brightness(cSynthVal.value * 63 / 100);
 		break;
 	}
-	case MENU_MIDI_RENOTE:
-	{
-		midi->reNote();
-		enterMenu(MENU_MIDI);
-		break;
-	}
 	case MENU_MIDI_CC_PITCH:
 	{
 		midi->setCC( CT_PITCH, cSynthVal.value );
@@ -713,11 +722,6 @@ void LCDST7565::setSynthProperty(int value)
 void LCDST7565::drawHome()
 {
 	//TODO: Homescreen has to be drawn
-}
-
-void LCDST7565::setOperatingMode(int opmode)
-{
-	//TODO: Change operating mode
 }
 
 void LCDST7565::calibrateAntennas(int value)
@@ -878,6 +882,15 @@ void LCDST7565::updateCheckbox(int val)
 		synth->setFilter1Enabled( _menu_items[_item_index].checked );
 		break;
 	}
+	case MENU_MIDI:
+	{
+		if(val == CT_PITCH)
+			midi->muteControl( CT_PITCH, _menu_items[_item_index].checked );
+		else
+			midi->muteControl( CT_VOLUME, _menu_items[_item_index].checked );
+
+		break;
+	}
 	/*
 	case MENU_MIDI_CC_PITCH:
 	{
@@ -910,17 +923,21 @@ void LCDST7565::updateRadiobutton(int val)
 	// TODO: update the requested value!
 	switch(currentMenu)
 	{
-	case MENU_OPERATING_MODE: setOperatingMode(val); break;
+	case MENU_OPERATING_MODE:
+	{
+		setOperatingMode( (opmode_e) val);
+		break;
+	}
 	case MENU_SYNTH_OSC_WAVEFORM: synth->setOSCWaveform(selectedPartIndex, val); break;
 	case MENU_DISP_COLOR: setBackgroundColor(val); break;
 	case MENU_MIDI_CC_PITCH:
 	{
-		midi->setUse14Bit( CT_PITCH, (bool) 1 - val );
+		midi->setUse14Bit( CT_PITCH, (bool) val );
 		break;
 	}
 	case MENU_MIDI_CC_VOL:
 	{
-		midi->setUse14Bit( CT_VOLUME, (bool) 1 - val );
+		midi->setUse14Bit( CT_VOLUME, (bool) val );
 		break;
 	}
 	}

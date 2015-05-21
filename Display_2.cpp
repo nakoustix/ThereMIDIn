@@ -23,10 +23,13 @@ thereMIDIn_configuration_t config;
 #define ADC_PIN_PITCH		2
 #define ADC_PIN_VOLUME		3
 
+#define MIDI_UPDATE_DEL 30
+
 int pitchVal = 0;
 int lastPitchVal = 0;
 int volVal = 0;
 int lastVolVal = 0;
+int lastMidiUpdate = 0;
 
 int lastTime = 0;
 void setup()
@@ -83,16 +86,17 @@ void setup()
 	// MIDI
 	config.midiConf.antenna[CT_PITCH].cc = 0;
 	config.midiConf.antenna[CT_PITCH].use14Bit = true;
+	config.midiConf.antenna[CT_PITCH].muted = false;
 	config.midiConf.antenna[CT_VOLUME].cc = 1;
 	config.midiConf.antenna[CT_VOLUME].use14Bit = false;
+	config.midiConf.antenna[CT_VOLUME].muted = true;
 	config.midiConf.baseNote = 60;
 	config.midiConf.velocity = 100;
 
 	// Set the MIDI configuration
 	midi.setConfiguration( &config.midiConf );
 
-	config.operatingMode = OPMODE_SYNTH;
-	operatingModeChanged();
+	setOperatingMode( OPMODE_MIDI );
 
 	lcd.setSynthesizerInstance( &synth );
 	lcd.setMidiInstance( &midi );
@@ -173,7 +177,7 @@ void loop()
 
 	if(millis() - lastTime >= 500)
 	{
-		digitalWrite(13, led);
+		//digitalWrite(13, led);
 		if(led)
 		{
 			led = 0;
@@ -184,30 +188,35 @@ void loop()
 		}
 	}
 
-	pitchVal = analogRead(ADC_PIN_PITCH);
-	if( pitchVal != lastPitchVal )
+	if(millis() - lastMidiUpdate > MIDI_UPDATE_DEL)
 	{
-		lastPitchVal = pitchVal;
-		switch( config.operatingMode )
+		lastMidiUpdate = millis();
+		pitchVal = analogRead(ADC_PIN_PITCH);
+		if( pitchVal != lastPitchVal )
 		{
-		case OPMODE_MIDI:	midi.setOffset( CT_PITCH, (pitchVal - ADC_HALF) / ADC_HALF); break;
-		case OPMODE_SYNTH:	synth.setOffset( CT_PITCH, (float) (pitchVal - ADC_HALF) / ADC_MAX);
+			lastPitchVal = pitchVal;
+			switch( config.operatingMode )
+			{
+			case OPMODE_MIDI:	midi.setOffset( CT_PITCH, (pitchVal - ADC_HALF) / ADC_HALF); break;
+			case OPMODE_SYNTH:	synth.setOffset( CT_PITCH, (float) (pitchVal - ADC_HALF) / ADC_MAX);
+			}
 		}
-	}
-	volVal = analogRead(ADC_PIN_VOLUME);
-	if( volVal != lastVolVal )
-	{
-		lastVolVal = volVal;
-		switch( config.operatingMode )
+		volVal = analogRead(ADC_PIN_VOLUME);
+		if( volVal != lastVolVal )
 		{
-		case OPMODE_MIDI:	midi.setOffset( CT_VOLUME, (volVal - ADC_HALF) / ADC_HALF); break;
-		case OPMODE_SYNTH:	synth.setOffset( CT_VOLUME, (float) (volVal - ADC_HALF) / ADC_MAX);
+			lastVolVal = volVal;
+			switch( config.operatingMode )
+			{
+			case OPMODE_MIDI:	midi.setOffset( CT_VOLUME, (volVal - ADC_HALF) / ADC_HALF); break;
+			case OPMODE_SYNTH:	synth.setOffset( CT_VOLUME, (float) (volVal - ADC_HALF) / ADC_MAX);
+			}
 		}
 	}
 }
 
-void operatingModeChanged()
+void setOperatingMode(opmode_e opmode)
 {
+	config.operatingMode = OPMODE_MIDI;
 	if(config.operatingMode == OPMODE_MIDI)
 	{
 		synth.gotoSleep();
