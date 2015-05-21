@@ -93,14 +93,30 @@ void Synthesizer::setSemiRange(uint8_t range)
 	updateFrequency();
 }
 
-void Synthesizer::setOffset(control_type_e control, float f)
+void Synthesizer::setOffset(control_type_e control, float o)
 {
 	switch( control )
 	{
 	case CT_PITCH:
 	{
-		freqOffset = f;
+		float offset = o * config->semiRange;
+		int semis = (int) offset;
+		int cents = (int) (offset - semis) * 100;
+		float freqOffset = config->baseFreq;
+		if( semis < 0 )
+		{
+			semis *= -1;
+			cents *= -1;
+			if( semis > 0 )	freqOffset *= semif_minus[semis - 1];
+			if( cents > 0 ) freqOffset *= centf_minus[cents - 1];
+		}
+		else
+		{
+			if( semis > 0 ) freqOffset *= semif_plus[semis - 1];
+			if( cents > 0 ) freqOffset *= centf_plus[cents - 1];
+		}
 		updateFrequency();
+		break;
 	}
 	case CT_VOLUME:
 	{
