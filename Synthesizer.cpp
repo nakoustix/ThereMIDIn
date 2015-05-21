@@ -87,10 +87,26 @@ void Synthesizer::setBaseFrequency(float f)
 	updateFrequency();
 }
 
-void Synthesizer::setFrequencyOffset(float f)
+void Synthesizer::setSemiRange(uint8_t range)
 {
-	freqOffset = f;
+	config->semiRange = range;
 	updateFrequency();
+}
+
+void Synthesizer::setOffset(control_type_e control, float f)
+{
+	switch( control )
+	{
+	case CT_PITCH:
+	{
+		freqOffset = f;
+		updateFrequency();
+	}
+	case CT_VOLUME:
+	{
+		break;
+	}
+	}
 }
 
 void Synthesizer::updateFrequency()

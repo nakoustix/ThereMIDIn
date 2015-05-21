@@ -10,6 +10,11 @@
 
 #include "globals.h"
 
+#define MIDI_PITCHBEND_MAX	16383
+#define MIDI_PITCHBEND_NULL	8192
+#define MIDI_CC_NULL		64
+#define MIDI_CC_MAX			127
+
 class MidiInterface {
 public:
 	MidiInterface();
@@ -23,6 +28,8 @@ public:
 	void setVelocity(uint8_t velo);
 	void setCC(control_type_e control, uint8_t cc);
 	void setUse14Bit(control_type_e control, bool use);
+
+	void setOffset(control_type_e control, float offset);
 
 	midi_configuration_t *configuration() const { return config; }
 

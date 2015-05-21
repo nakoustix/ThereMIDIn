@@ -30,7 +30,8 @@ public:
 
 	void setMasterGain(float g);
 	void setBaseFrequency(float f);
-	void setFrequencyOffset(float f);
+	void setSemiRange(uint8_t f);
+	void setOffset( control_type_e control, float f );
 
 	void setOSCEnabled(int index, bool en);
 	void setOSCAmplitude(int index, float amp);

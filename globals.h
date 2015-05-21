@@ -160,6 +160,7 @@ typedef struct
 {
 	float masterGain;
 	float baseFreq;
+	uint32_t semiRange;
 	synth_preset_t preset;
 } synth_configuration_t;
 

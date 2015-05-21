@@ -18,13 +18,15 @@ synth_preset_t synth_preset;
 midi_configuration_t midiConf;
 thereMIDIn_configuration_t config;
 
-#define FREQ_RANGE	600.f
 #define ADC_MAX		4095.f
 #define ADC_HALF	2048.f
-#define ADC_PIN		2
+#define ADC_PIN_PITCH		2
+#define ADC_PIN_VOLUME		3
 
-int potVal = 0;
-int lastPotVal = 0;
+int pitchVal = 0;
+int lastPitchVal = 0;
+int volVal = 0;
+int lastVolVal = 0;
 
 int lastTime = 0;
 void setup()
@@ -182,11 +184,25 @@ void loop()
 		}
 	}
 
-	potVal = analogRead(ADC_PIN);
-	if( potVal != lastPotVal )
+	pitchVal = analogRead(ADC_PIN_PITCH);
+	if( pitchVal != lastPitchVal )
 	{
-		lastPotVal = potVal;
-		synth.setFrequencyOffset((float) (potVal - ADC_HALF) / ADC_MAX * FREQ_RANGE);
+		lastPitchVal = pitchVal;
+		switch( config.operatingMode )
+		{
+		case OPMODE_MIDI:	midi.setOffset( CT_PITCH, (pitchVal - ADC_HALF) / ADC_HALF); break;
+		case OPMODE_SYNTH:	synth.setOffset( CT_PITCH, (float) (pitchVal - ADC_HALF) / ADC_MAX);
+		}
+	}
+	volVal = analogRead(ADC_PIN_VOLUME);
+	if( volVal != lastVolVal )
+	{
+		lastVolVal = volVal;
+		switch( config.operatingMode )
+		{
+		case OPMODE_MIDI:	midi.setOffset( CT_VOLUME, (volVal - ADC_HALF) / ADC_HALF); break;
+		case OPMODE_SYNTH:	synth.setOffset( CT_VOLUME, (float) (volVal - ADC_HALF) / ADC_MAX);
+		}
 	}
 }
 

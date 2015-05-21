@@ -33,6 +33,27 @@ void MidiInterface::reNote()
 	usbMIDI.sendNoteOn(config->baseNote, config->velocity, config->channel);
 }
 
+void MidiInterface::setOffset(control_type_e control, float offset)
+{
+	if( config->antenna[control].use14Bit )
+	{
+		float value = MIDI_PITCHBEND_NULL + offset * MIDI_PITCHBEND_NULL;
+		if( value > MIDI_PITCHBEND_MAX ) value = MIDI_PITCHBEND_MAX;
+		switch( control )
+		{
+		case CT_PITCH:	usbMIDI.sendPitchBend( (uint32_t) value, config->channel ); break;
+		// TODO: determine a second 14Bit parameter! Don't use pitchbend for both!
+		case CT_VOLUME:	usbMIDI.sendPitchBend( (uint32_t) value, config->channel ); break;
+		}
+	}
+	else
+	{
+		float value = MIDI_CC_NULL + offset * MIDI_CC_NULL;
+		if( value > MIDI_CC_MAX )	value = MIDI_CC_MAX;
+		usbMIDI.sendControlChange( config->antenna[control].cc, (uint32_t) value, config->channel);
+	}
+}
+
 
 
 void MidiInterface::setChannel(uint8_t chn)

@@ -167,6 +167,7 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("Synthesizer");
 		addMenuItem("Master Gain", MENU_SYNTH_GAIN, &LCDST7565::enterValueMenu);
 		addMenuItem("Basefrequency", MENU_SYNTH_BASEFREQ, &LCDST7565::enterValueMenu);
+		addMenuItem("Semitone Range", MENU_SYNTH_SEMIRANGE, &LCDST7565::enterValueMenu);
 		addMenuItem("Mod.-Matrix", MENU_SYNTH_MATRIX, &LCDST7565::enterMenu);
 		addMenuItem("OSC1", (int) MENU_SYNTH_OSC1, &LCDST7565::enterMenu);
 		addMenuItem("OSC2", (int) MENU_SYNTH_OSC2, &LCDST7565::enterMenu);
@@ -401,6 +402,18 @@ void LCDST7565::makeValueMenu(int menu)
 			strcpy(cSynthVal.unit, "Hz");
 			break;
 		}
+		case MENU_SYNTH_SEMIRANGE:
+		{
+			cSynthVal.type = VAL_TYPE_INT;
+			cSynthVal.min = 1;
+			cSynthVal.max = 24;
+			cSynthVal.value = synth->config->semiRange;
+			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
+			strcpy(cSynthVal.name, "Semitone Range");
+			strcpy(cSynthVal.unit, "+/-");
+			break;
+		}
 		case MENU_SYNTH_OSC_AMPLITUDE:
 		{
 			cSynthVal.type = VAL_TYPE_FLOAT;
@@ -578,6 +591,11 @@ void LCDST7565::updateValue()
 	case MENU_SYNTH_BASEFREQ:
 	{
 		synth->setBaseFrequency(cSynthVal.fvalue);
+		break;
+	}
+	case MENU_SYNTH_SEMIRANGE:
+	{
+		synth->setSemiRange((uint8_t) cSynthVal.value);
 		break;
 	}
 	case MENU_SYNTH_OSC_AMPLITUDE:
