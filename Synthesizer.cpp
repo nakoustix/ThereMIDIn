@@ -16,7 +16,7 @@ Synthesizer::Synthesizer()
 	osc[2] = &osc3;
 
 	currentFreq = 300;
-	masterGain = 0.5f;
+	freqOffset = 0;
 
 	// make connections
 	osc12sum = new AudioConnection(osc1, 0, oscSum, 0);
@@ -48,7 +48,6 @@ Synthesizer::~Synthesizer()
 
 void Synthesizer::enable(float gain)
 {
-	masterGain = gain;
 	audioShield.enable();
 	audioShield.volume(gain);
 	AudioProcessorUsageMaxReset();
@@ -85,7 +84,24 @@ void Synthesizer::setMasterGain(float g)
 void Synthesizer::setBaseFrequency(float f)
 {
 	config->baseFreq = f;
-	setFrequency(f);
+	updateFrequency();
+}
+
+void Synthesizer::setFrequencyOffset(float f)
+{
+	freqOffset = f;
+	updateFrequency();
+}
+
+void Synthesizer::updateFrequency()
+{
+	AudioNoInterrupts();
+	currentFreq = config->baseFreq + freqOffset;
+	for(int i = 0; i < 3; i++)
+	{
+		osc[i]->frequency(getOSCFrequency(i, currentFreq));
+	}
+	AudioInterrupts();
 }
 
 void Synthesizer::setPreset(synth_preset_t *p)
@@ -114,17 +130,6 @@ void Synthesizer::setConfiguration(synth_configuration_t *config)
 {
 	this->config = config;
 	this->setPreset(&config->preset);
-}
-
-void Synthesizer::setFrequency(float f)
-{
-	AudioNoInterrupts();
-	currentFreq = f;
-	for(int i = 0; i < 3; i++)
-	{
-		osc[i]->frequency(getOSCFrequency(i, f));
-	}
-	AudioInterrupts();
 }
 
 void Synthesizer::noteOn()

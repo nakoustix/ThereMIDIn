@@ -30,6 +30,7 @@ public:
 
 	void setMasterGain(float g);
 	void setBaseFrequency(float f);
+	void setFrequencyOffset(float f);
 
 	void setOSCEnabled(int index, bool en);
 	void setOSCAmplitude(int index, float amp);
@@ -46,7 +47,6 @@ public:
 	void setFilter1Reso(float f);
 	void setFilter2Freq(float f);
 
-	void setFrequency(float f);
 	void noteOn();
 	void noteOff();
 
@@ -66,9 +66,10 @@ public:
 	synth_preset_t 		*preset;
 	synth_configuration_t *config;
 private:
+	void updateFrequency();
+
 	float 				currentFreq;
-	float 				masterGain;
-	float 				baseFreq;
+	float 				freqOffset;
 
 	// Audio objects
 	OSCWaveform 			osc1;
