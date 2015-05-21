@@ -68,6 +68,7 @@ public:
 private:
 	float 				currentFreq;
 	float 				masterGain;
+	float 				baseFreq;
 
 	// Audio objects
 	OSCWaveform 			osc1;

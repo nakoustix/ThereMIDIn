@@ -79,11 +79,13 @@ void Synthesizer::reconnect()
 void Synthesizer::setMasterGain(float g)
 {
 	audioShield.volume(g);
+	config->masterGain = g;
 }
 
 void Synthesizer::setBaseFrequency(float f)
 {
-
+	config->baseFreq = f;
+	setFrequency(f);
 }
 
 void Synthesizer::setPreset(synth_preset_t *p)
@@ -260,6 +262,7 @@ void Synthesizer::setFilter1Reso(float f)
 void Synthesizer::setFilter2Freq(float f)
 {
 }
+
 
 OSCWaveform * Synthesizer::getOSC(int index)
 {

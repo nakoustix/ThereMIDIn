@@ -557,7 +557,7 @@ void LCDST7565::updateValue()
 	}
 	case MENU_SYNTH_BASEFREQ:
 	{
-		synth->setFrequency(cSynthVal.fvalue);
+		synth->setBaseFrequency(cSynthVal.fvalue);
 		break;
 	}
 	case MENU_SYNTH_OSC_AMPLITUDE:
