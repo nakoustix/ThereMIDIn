@@ -11,6 +11,7 @@
 #include "ST7565.h"
 #include "gui.h"
 #include "Synthesizer.h"
+#include "MidiInterface.h"
 #include "globals.h"
 
 //--- Configuration: ---
@@ -86,7 +87,7 @@ public:
 	void enterMenu(int m);
 
 	void setSynthesizerInstance(Synthesizer *synthInstance) {synth = synthInstance; }
-	void setMIDIConfig(midi_configuration_t *c) {midiConf = c;}
+	void setMidiInstance( MidiInterface *midi ) { this->midi = midi; }
 
 	void setBackgroundColor(int col);
 
@@ -123,7 +124,7 @@ private:
 
 
 	Synthesizer *synth;
-	midi_configuration_t *midiConf;
+	MidiInterface *midi;
 
 	// selected indices
 	int selectedPart;

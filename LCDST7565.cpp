@@ -12,6 +12,7 @@ LCDST7565::LCDST7565()
 	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
 {
 	synth = 0;
+	midi = 0;
 	selectedPart = selectedPartIndex = 0;
 	valueMenuActive = false;
 	valStepFactor = 1;
@@ -136,10 +137,11 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MIDI:
 	{
 		setMenuTitle("MIDI Settings");
-		addMenuItem("MIDI Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
-		addMenuItem("MIDI Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
-		addMenuItem("MIDI CC Pitch", MENU_MIDI_CC_PITCH, &LCDST7565::enterMenu);
-		addMenuItem("MIDI CC Volume", MENU_MIDI_CC_VOL, &LCDST7565::enterMenu);
+		addMenuItem("Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
+		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
+		addMenuItem("Velocity", MENU_MIDI_VELOCITY, &LCDST7565::enterValueMenu);
+		addMenuItem("CC Pitch", MENU_MIDI_CC_PITCH, &LCDST7565::enterMenu);
+		addMenuItem("CC Volume", MENU_MIDI_CC_VOL, &LCDST7565::enterMenu);
 		break;
 	}
 	case MENU_MIDI_CC_PITCH:
@@ -147,7 +149,7 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("MIDI CC Pitch");
 		addMenuItemRadiobutton("14Bit Pitchbend", 0);
 		addMenuItemRadiobutton("Standard MIDI CC", 1);
-		addMenuItem("MIDI CC", MENU_MIDI_CC_PITCH, &LCDST7565::enterValueMenu);
+		addMenuItem("CC", MENU_MIDI_CC_PITCH, &LCDST7565::enterValueMenu);
 		selectRadioButton(0);
 		break;
 	}
@@ -156,7 +158,7 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("MIDI CC Volume");
 		addMenuItemRadiobutton("14Bit ModWheel", 0);
 		addMenuItemRadiobutton("Standard MIDI CC", 1);
-		addMenuItem("MIDI CC", MENU_MIDI_CC_VOL, &LCDST7565::enterValueMenu);
+		addMenuItem("CC", MENU_MIDI_CC_VOL, &LCDST7565::enterValueMenu);
 		selectRadioButton(0);
 		break;
 	}
@@ -308,7 +310,7 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_MIDI_CHANNEL;
 			cSynthVal.min = 0;
 			cSynthVal.max = 15;
-			cSynthVal.value = 0;
+			cSynthVal.value = midi->configuration()->channel;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "MIDI Channel");
@@ -320,10 +322,22 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_MIDI_NOTE;
 			cSynthVal.min = 0;
 			cSynthVal.max = 127;
-			cSynthVal.value = 0;
+			cSynthVal.value = midi->configuration()->baseNote;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
-			strcpy(cSynthVal.name, "MIDI Note");
+			strcpy(cSynthVal.name, "Note");
+			strcpy(cSynthVal.unit, "");
+			break;
+		}
+		case MENU_MIDI_VELOCITY:
+		{
+			cSynthVal.type = VAL_TYPE_MIDI_NOTE;
+			cSynthVal.min = 0;
+			cSynthVal.max = 127;
+			cSynthVal.value = midi->configuration()->velocity;
+			cSynthVal.step = 1;
+			cSynthVal.incSpeed = 5;
+			strcpy(cSynthVal.name, "Velocity");
 			strcpy(cSynthVal.unit, "");
 			break;
 		}
@@ -333,13 +347,19 @@ void LCDST7565::makeValueMenu(int menu)
 			cSynthVal.type = VAL_TYPE_MIDI_CC;
 			cSynthVal.min = 0;
 			cSynthVal.max = 127;
-			cSynthVal.value = 0;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			if(menu == MENU_MIDI_CC_PITCH)
+			{
 				strcpy(cSynthVal.name, "MIDI CC Pitch");
+				cSynthVal.value = midi->configuration()->antenna[CT_PITCH].cc;
+			}
 			else
+			{
 				strcpy(cSynthVal.name, "MIDI CC Vol");
+				cSynthVal.value = midi->configuration()->antenna[CT_VOLUME].cc;
+			}
+
 			strcpy(cSynthVal.unit, "");
 			break;
 		}
@@ -597,14 +617,27 @@ void LCDST7565::updateValue()
 	}
 	case MENU_MIDI_CC_PITCH:
 	{
-		midiConf->pitch.midi_cc = cSynthVal.value;
-		midiConfigChanged();
+		midi->setCC( CT_PITCH, cSynthVal.value );
 		break;
 	}
 	case MENU_MIDI_CC_VOL:
 	{
-		midiConf->volume.midi_cc = cSynthVal.value;
-		midiConfigChanged();
+		midi->setCC( CT_VOLUME, cSynthVal.value );
+		break;
+	}
+	case MENU_MIDI_NOTE:
+	{
+		midi->setBaseNote( cSynthVal.value );
+		break;
+	}
+	case MENU_MIDI_CHANNEL:
+	{
+		midi->setChannel( cSynthVal.value );
+		break;
+	}
+	case MENU_MIDI_VELOCITY:
+	{
+		midi->setVelocity( cSynthVal.value );
 		break;
 	}
 	}
@@ -812,28 +845,26 @@ void LCDST7565::updateCheckbox(int val)
 	case MENU_SYNTH_OSC2:
 	case MENU_SYNTH_OSC3:
 	{
-		if(_menu_items[_item_index].checked) synth->setOSCEnabled(selectedPartIndex, true);
-		else synth->setOSCEnabled(selectedPartIndex, false);
+		synth->setOSCEnabled( selectedPartIndex, _menu_items[_item_index].checked );
 		break;
 	}
 	case MENU_SYNTH_FILTER1:
 	{
-		if(_menu_items[_item_index].checked) synth->setFilter1Enabled(false);
-		else synth->setFilter1Enabled(true);
+		synth->setFilter1Enabled( _menu_items[_item_index].checked );
 		break;
 	}
+	/*
 	case MENU_MIDI_CC_PITCH:
 	{
-		midiConf->pitch.use14Bit = _menu_items[_item_index].checked;
-		midiConfigChanged();
+		midi->setUse14Bit( CT_PITCH, _menu_items[_item_index].checked );
 		break;
 	}
 	case MENU_MIDI_CC_VOL:
 	{
-		midiConf->volume.use14Bit = _menu_items[_item_index].checked;
-		midiConfigChanged();
+		midi->setUse14Bit( CT_VOLUME, _menu_items[_item_index].checked );
 		break;
-	}
+	}*/
+
 	}
 }
 
@@ -857,6 +888,16 @@ void LCDST7565::updateRadiobutton(int val)
 	case MENU_OPERATING_MODE: setOperatingMode(val); break;
 	case MENU_SYNTH_OSC_WAVEFORM: synth->setOSCWaveform(selectedPartIndex, val); break;
 	case MENU_DISP_COLOR: setBackgroundColor(val); break;
+	case MENU_MIDI_CC_PITCH:
+	{
+		midi->setUse14Bit( CT_PITCH, (bool) 1 - val );
+		break;
+	}
+	case MENU_MIDI_CC_VOL:
+	{
+		midi->setUse14Bit( CT_VOLUME, (bool) 1 - val );
+		break;
+	}
 	}
 }
 

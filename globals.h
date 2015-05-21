@@ -39,11 +39,11 @@
 extern void midiConfigChanged();
 extern void operatingModeChanged();
 
-enum ModulationSource
+typedef enum
 {
-	MOD_SRC_PITCH,
-	MOD_SRC_VOL,
-};
+	CT_PITCH = 0,
+	CT_VOLUME,
+} control_type_e;
 
 enum ModulationDestination
 {
@@ -91,12 +91,15 @@ typedef struct
 typedef struct
 {
 	bool use14Bit;
-	uint8_t midi_cc;
+	uint8_t cc;
 } midi_antenna_conf_t;
 
 typedef struct
 {
-	midi_antenna_conf_t pitch, volume;
+	midi_antenna_conf_t antenna[2];
+	uint8_t baseNote;
+	uint8_t channel;
+	uint8_t velocity;
 } midi_configuration_t;
 
 enum OperatingMode

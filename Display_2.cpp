@@ -4,6 +4,7 @@
 #include "Bounce.h"
 #include "Synthesizer.h"
 #include "globals.h"
+#include "MidiInterface.h"
 
 Bounce up = Bounce(14, 5);
 Bounce down = Bounce(3, 5);
@@ -12,6 +13,7 @@ Bounce enter = Bounce(16, 5);
 
 LCDST7565 lcd;
 Synthesizer synth;
+MidiInterface midi;
 synth_preset_t synth_preset;
 midi_configuration_t midiConf;
 thereMIDIn_configuration_t config;
@@ -74,20 +76,25 @@ void setup()
 	config.synthConf.preset.filter.flt2.frequency = 1200.f;
 
 	// Set the synth configuration
-	synth.setConfiguration(&config.synthConf);
+	synth.setConfiguration( &config.synthConf );
 
 	// MIDI
-	config.midiConf.pitch.midi_cc = 0;
-	config.midiConf.pitch.use14Bit = true;
-	config.midiConf.volume.midi_cc = 1;
-	config.midiConf.volume.use14Bit = true;
+	config.midiConf.antenna[CT_PITCH].cc = 0;
+	config.midiConf.antenna[CT_PITCH].use14Bit = true;
+	config.midiConf.antenna[CT_VOLUME].cc = 1;
+	config.midiConf.antenna[CT_VOLUME].use14Bit = false;
+	config.midiConf.baseNote = 60;
+	config.midiConf.velocity = 100;
+
+	// Set the MIDI configuration
+	midi.setConfiguration( &config.midiConf );
 
 	config.operatingMode = OPMODE_SYNTH;
 	operatingModeChanged();
 
-	lcd.setSynthesizerInstance(&synth);
-	lcd.setMIDIConfig(&config.midiConf);
-	lcd.enterMenu(MENU_MAIN);
+	lcd.setSynthesizerInstance( &synth );
+	lcd.setMidiInstance( &midi );
+	lcd.enterMenu( MENU_MAIN );
 	lcd.update();
 }
 
@@ -181,11 +188,6 @@ void loop()
 		lastPotVal = potVal;
 		synth.setFrequencyOffset((float) (potVal - ADC_HALF) / ADC_MAX * FREQ_RANGE);
 	}
-}
-
-void midiConfigChanged()
-{
-
 }
 
 void operatingModeChanged()
