@@ -44,7 +44,8 @@ typedef enum
 {
 	MENU_ITEM_TYPE_NORMAL,
 	MENU_ITEM_TYPE_CHECK,
-	MENU_ITEM_TYPE_RADIO
+	MENU_ITEM_TYPE_RADIO,
+	MENU_ITEM_TYPE_LINE
 } menu_item_e;
 
 typedef struct
@@ -97,6 +98,7 @@ public:
     void addMenuItem(char *label, int value, void (LCDST7565::*function)(int));
     void addMenuItemCheckbox(char *label, int value, bool checked);
     void addMenuItemRadiobutton(char *label, int value);
+    void addMenuItemLine(char *label);
     void drawMenu();
     void clearMenu();
 

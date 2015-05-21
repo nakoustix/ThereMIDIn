@@ -138,6 +138,7 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MIDI:
 	{
 		setMenuTitle("MIDI Settings");
+		// Enable
 		addMenuItem("Note On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Note Off", MENU_MIDI_NOTEOFF, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
@@ -154,6 +155,7 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("MIDI CC Pitch");
 		addMenuItemRadiobutton("14Bit Pitchbend", 1);
 		addMenuItemRadiobutton("Standard MIDI CC", 0);
+		addMenuItemLine("*");
 		addMenuItem("CC", MENU_MIDI_CC_PITCH, &LCDST7565::enterValueMenu);
 		if( midi->configuration()->antenna[CT_PITCH].use14Bit )
 			selectRadioButton( 0 );
@@ -836,24 +838,32 @@ void LCDST7565::menuBack()
 
 void LCDST7565::menuUp()
 {
-	// Only move once until button release or MAX_HOLD_COUNT reached
-	if (_current_line > 0) _current_line--;
-	else scroll(-1); // We're at the top line, scroll up if possible
-	if (_item_index > 0)
-	{
-	  _item_index--;
-	}
+	bool onTop = false;
+	do {
+		// Only move once until button release or MAX_HOLD_COUNT reached
+		if (_current_line > 0) _current_line--;
+		else scroll(-1); // We're at the top line, scroll up if possible
+		if (_item_index > 0)
+		{
+		  _item_index--;
+		}
+		else onTop = true;
+	} while( _menu_items[_item_index].type == MENU_ITEM_TYPE_LINE && ! onTop);
 	update();
 }
 
 void LCDST7565::menuDown()
 {
-	if ((_current_line < N_LINES-2) & (_current_line < _n_items-1)) _current_line++;
-	else scroll(1); // We're at the bottom line, scroll down if possible
-	if (_item_index < _n_items-1)
-	{
-		_item_index++;
-	}
+	bool atBottom = false;
+	do {
+		if ((_current_line < N_LINES-2) & (_current_line < _n_items-1)) _current_line++;
+		else scroll(1); // We're at the bottom line, scroll down if possible
+		if (_item_index < _n_items-1)
+		{
+			_item_index++;
+		}
+		else atBottom = true;
+	} while( _menu_items[_item_index].type == MENU_ITEM_TYPE_LINE && ! atBottom);
 	update();
 }
 
@@ -964,6 +974,33 @@ void LCDST7565::addMenuItem(char *label, int value,  void (LCDST7565::*function)
   i.pass_value = i.funct = true; // Has function and should pass it a value
   i.value = value;               // Value to pass to function on select
   i.value_function = function;   // Function to call
+  _menu_items[_n_items++] = i;
+}
+
+void LCDST7565::addMenuItemLine(char *label) {
+	int len = strlen(label);
+	if (_n_items >= MAX_ITEMS) return;
+	if (len > LABEL_LEN) return;
+	MenuItem i;
+	if(len > 1)
+	{
+		strcpy(i.label, label);
+	}
+	else if (len == 1)
+	{
+		char dest[19];
+		for(int i = 0; i < 19; i++)
+		{
+			dest[i] = 0;
+		}
+		for(int i = 0; i < 19; i++)
+		{
+			strcat(dest, label);
+		}
+		strcpy(i.label, dest);
+	}
+	i.type = MENU_ITEM_TYPE_LINE;
+	i.pass_value = i.funct = false;
   _menu_items[_n_items++] = i;
 }
 
