@@ -6,10 +6,10 @@
 #include "globals.h"
 #include "MidiInterface.h"
 
-Bounce up = Bounce(14, 5);
-Bounce down = Bounce(3, 5);
-Bounce back = Bounce(15, 5);
-Bounce enter = Bounce(16, 5);
+Bounce up = Bounce(14, 12);
+Bounce down = Bounce(3, 12);
+Bounce back = Bounce(15, 12);
+Bounce enter = Bounce(16, 12);
 
 LCDST7565 lcd;
 Synthesizer synth;

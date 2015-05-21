@@ -139,11 +139,12 @@ void LCDST7565::makeMenu(int m)
 	{
 		setMenuTitle("MIDI Settings");
 		addMenuItem("Note On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
-		addMenuItemCheckbox("Mute Pitch", CT_PITCH, midi->configuration()->antenna[CT_PITCH].muted );
-		addMenuItemCheckbox("Mute Volume", CT_VOLUME, midi->configuration()->antenna[CT_VOLUME].muted );
-		addMenuItem("Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
+		addMenuItem("Note Off", MENU_MIDI_NOTEOFF, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Velocity", MENU_MIDI_VELOCITY, &LCDST7565::enterValueMenu);
+		addMenuItem("Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
+		addMenuItemCheckbox("Mute Pitch", CT_PITCH, midi->configuration()->antenna[CT_PITCH].muted );
+		addMenuItemCheckbox("Mute Volume", CT_VOLUME, midi->configuration()->antenna[CT_VOLUME].muted );
 		addMenuItem("CC Pitch", MENU_MIDI_CC_PITCH, &LCDST7565::enterMenu);
 		addMenuItem("CC Volume", MENU_MIDI_CC_VOL, &LCDST7565::enterMenu);
 		break;
@@ -319,6 +320,12 @@ void LCDST7565::makeValueMenu(int menu)
 		case MENU_MIDI_RENOTE:
 		{
 			midi->reNote();
+			menuBack();
+			break;
+		}
+		case MENU_MIDI_NOTEOFF:
+		{
+			midi->noteOff();
 			menuBack();
 			break;
 		}
