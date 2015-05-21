@@ -137,6 +137,7 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MIDI:
 	{
 		setMenuTitle("MIDI Settings");
+		addMenuItem("Noe On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Channel", MENU_MIDI_CHANNEL, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Velocity", MENU_MIDI_VELOCITY, &LCDST7565::enterValueMenu);
@@ -631,6 +632,12 @@ void LCDST7565::updateValue()
 	case MENU_DISP_CONTRAST:
 	{
 		st7565_set_brightness(cSynthVal.value * 63 / 100);
+		break;
+	}
+	case MENU_MIDI_RENOTE:
+	{
+		midi->reNote();
+		enterMenu(MENU_MIDI);
 		break;
 	}
 	case MENU_MIDI_CC_PITCH:
