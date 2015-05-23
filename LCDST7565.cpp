@@ -140,6 +140,7 @@ void LCDST7565::makeMenu(int m)
 	{
 		setMenuTitle("MIDI Settings");
 		// Enable
+		addMenuItemCheckbox("Enabled", MENU_MIDI_ENABLE, midi->configuration()->enabled);
 		addMenuItem("Note On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Note Off", MENU_MIDI_NOTEOFF, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
@@ -904,8 +905,10 @@ void LCDST7565::updateCheckbox(int val)
 	{
 		if(val == CT_PITCH)
 			midi->muteControl( CT_PITCH, _menu_items[_item_index].checked );
-		else
+		else if( val == CT_VOLUME )
 			midi->muteControl( CT_VOLUME, _menu_items[_item_index].checked );
+		else
+			midi->setEnabled( _menu_items[_item_index].checked );
 
 		break;
 	}

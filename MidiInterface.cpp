@@ -17,6 +17,11 @@ MidiInterface::~MidiInterface() {
 
 }
 
+void MidiInterface::setEnabled(bool en)
+{
+	config->enabled = en;
+}
+
 void MidiInterface::muteControl(control_type_e control, bool m)
 {
 	config->antenna[control].muted = m;
@@ -29,16 +34,25 @@ bool MidiInterface::isMuted(control_type_e control)
 
 void MidiInterface::noteOn()
 {
+	if( ! config->enabled )
+		return;
+
 	usbMIDI.sendNoteOn(config->baseNote, config->velocity, config->channel);
 }
 
 void MidiInterface::noteOff()
 {
+	if( ! config->enabled )
+		return;
+
 	usbMIDI.sendNoteOff(config->baseNote, 0, config->channel);
 }
 
 void MidiInterface::reNote()
 {
+	if( ! config->enabled )
+		return;
+
 	usbMIDI.sendNoteOff(config->baseNote, 0, config->channel);
 	usbMIDI.sendNoteOn(config->baseNote, config->velocity, config->channel);
 }
@@ -57,6 +71,9 @@ void MidiInterface::configurationChanged()
 
 void MidiInterface::setOffset(control_type_e control, float offset)
 {
+	if( ! config->enabled )
+		return;
+
 	if( ! config->antenna[control].muted )
 	{
 		if( config->antenna[control].use14Bit )

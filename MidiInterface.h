@@ -20,6 +20,8 @@ public:
 	MidiInterface();
 	virtual ~MidiInterface();
 
+	void setEnabled(bool en);
+	bool isEnabled()  {return config->enabled;}
 	void setConfiguration(midi_configuration_t *config);
 	void reNote();
 	void noteOn();

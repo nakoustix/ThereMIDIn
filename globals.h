@@ -94,6 +94,7 @@ typedef struct
 
 typedef struct
 {
+	bool enabled;
 	midi_antenna_conf_t antenna[2];
 	uint8_t baseNote;
 	uint8_t channel;
