@@ -92,6 +92,7 @@ void setup()
 	config.midiConf.antenna[CT_VOLUME].muted = true;
 	config.midiConf.baseNote = 60;
 	config.midiConf.velocity = 100;
+	config.midiConf.enabled = true;
 
 	// Set the MIDI configuration
 	midi.setConfiguration( &config.midiConf );
