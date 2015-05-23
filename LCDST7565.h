@@ -150,6 +150,7 @@ private:
     int8_t _draw_index, lastDrawIndex;
     char _title[LABEL_LEN];
 
+    uint8_t buty;
 };
 
 #endif /* LCDST7565_H_ */

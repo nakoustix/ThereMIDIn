@@ -13,6 +13,9 @@
 LCDST7565::LCDST7565()
 	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
 {
+
+	buty = 52;
+
 	synth = 0;
 	midi = 0;
 	selectedPart = selectedPartIndex = 0;
@@ -60,19 +63,14 @@ void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 		this->drawbitmap(x, GUI_BUTTON_Y, button_menu, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
-	case BUT_SYNTH:
-	{
-		this->drawbitmap(x, GUI_BUTTON_Y, button_synth, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
-		break;
-	}
 	case BUT_UP:
 	{
-		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_left, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_up, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
 	case BUT_DOWN:
 	{
-		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_right, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_down, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
 	}
@@ -840,6 +838,7 @@ void LCDST7565::menuBack()
 
 void LCDST7565::menuUp()
 {
+	buty--;
 	bool onTop = false;
 	do {
 		// Only move once until button release or MAX_HOLD_COUNT reached
@@ -856,6 +855,7 @@ void LCDST7565::menuUp()
 
 void LCDST7565::menuDown()
 {
+	buty++;
 	bool atBottom = false;
 	do {
 		if ((_current_line < N_LINES-2) & (_current_line < _n_items-1)) _current_line++;
@@ -1117,8 +1117,8 @@ void LCDST7565::drawMenu() {
 	    this->drawline(127, DOWN_ARROW_Y, 125, DOWN_ARROW_Y + 3, BLACK);
 	  }
 
-	  this->drawMenuButton(BUT_UP, 0);
-	  this->drawMenuButton(BUT_DOWN, 1);
+	  this->drawMenuButton(BUT_DOWN, 0);
+	  this->drawMenuButton(BUT_UP, 1);
 	  this->drawMenuButton(BUT_BACK, 2);
 	  this->drawMenuButton(BUT_OK, 3);
 	  this->display();
@@ -1233,8 +1233,8 @@ void LCDST7565::drawValueMenu()
 	strx = centerString(str);
 	drawstring(strx, strline, str);
 
-	this->drawMenuButton(BUT_UP, 0);
-	this->drawMenuButton(BUT_DOWN, 1);
+	this->drawMenuButton(BUT_DOWN, 0);
+	this->drawMenuButton(BUT_UP, 1);
 	this->drawMenuButton(BUT_BACK, 2);
 	this->drawMenuButton(BUT_OK, 3);
 	display();
