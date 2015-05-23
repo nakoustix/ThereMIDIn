@@ -73,6 +73,21 @@ void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_down, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
+	case BUT_LEFT:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_left, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		break;
+	}
+	case BUT_RIGHT:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_arrow_right, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		break;
+	}
+	case BUT_SET:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_set, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		break;
+	}
 	}
 }
 
@@ -1120,7 +1135,20 @@ void LCDST7565::drawMenu() {
 	  this->drawMenuButton(BUT_DOWN, 0);
 	  this->drawMenuButton(BUT_UP, 1);
 	  this->drawMenuButton(BUT_BACK, 2);
-	  this->drawMenuButton(BUT_OK, 3);
+	  switch( _menu_items[_item_index].type )
+	  {
+	  case MENU_ITEM_TYPE_CHECK:
+	  case MENU_ITEM_TYPE_RADIO:
+	  {
+		  this->drawMenuButton(BUT_SET, 3);
+		  break;
+	  }
+	  default:
+	  {
+		  this->drawMenuButton(BUT_OK, 3);
+		  break;
+	  }
+	  }
 	  this->display();
 }
 
