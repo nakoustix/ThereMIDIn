@@ -187,6 +187,7 @@ extern float semif_plus[24];
 extern float semif_minus[24];
 extern float centf_plus[100];
 extern float centf_minus[100];
+extern char midi_note_names[12];
 
 extern void midiConfigChanged();
 extern void setOperatingMode( opmode_e mode );

@@ -8,6 +8,7 @@
 #include "MidiInterface.h"
 #include "USB_MIDI.h"
 
+
 MidiInterface::MidiInterface() {
 	config = new midi_configuration_t;
 }

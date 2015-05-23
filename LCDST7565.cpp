@@ -8,6 +8,7 @@
 #include "LCDST7565.h"
 #include <stdio.h>
 #include "globals.h"
+#include "MidiInterface.h"
 
 LCDST7565::LCDST7565()
 	: ST7565(PIN_ST7565_SID,PIN_ST7565_SCLK,PIN_ST7565_A0,PIN_ST7565_RST,PIN_ST7565_CS)
@@ -357,7 +358,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_MIDI_VELOCITY:
 		{
-			cSynthVal.type = VAL_TYPE_MIDI_NOTE;
+			cSynthVal.type = VAL_TYPE_MIDI_CC;
 			cSynthVal.min = 0;
 			cSynthVal.max = 127;
 			cSynthVal.value = midi->configuration()->velocity;
@@ -1182,11 +1183,34 @@ void LCDST7565::drawValueMenu()
 	switch(cSynthVal.type)
 	{
 	case VAL_TYPE_MIDI_CHANNEL:
-	case VAL_TYPE_MIDI_NOTE:
 	case VAL_TYPE_MIDI_CC:
 	case VAL_TYPE_INT:
 	{
 		sprintf(str, "%i%s", cSynthVal.value, cSynthVal.unit);
+		break;
+	}
+	case VAL_TYPE_MIDI_NOTE:
+	{
+		uint8_t note,octave;
+		octave = cSynthVal.value / 12;
+		note = cSynthVal.value % 12;
+		switch( note )
+		{
+		case 1:
+		case 3:
+		case 6:
+		case 8:
+		case 10:
+		{
+			sprintf(str, "%c#%i (%i)", midi_note_names[note], octave, cSynthVal.value);
+			break;
+		}
+		default:
+		{
+			sprintf(str, "%c%i (%i)", midi_note_names[note], octave, cSynthVal.value);
+			break;
+		}
+		}
 		break;
 	}
 	case VAL_TYPE_FLOAT:
