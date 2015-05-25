@@ -102,7 +102,7 @@ void setup()
 
 	lcd.setSynthesizerInstance( &synth );
 	lcd.setMidiInstance( &midi );
-	lcd.enterMenu( MENU_MAIN );
+	lcd.enterMenu( MENU_HOME );
 	lcd.update();
 }
 

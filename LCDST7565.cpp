@@ -16,6 +16,7 @@ LCDST7565::LCDST7565()
 
 	buty = 52;
 
+	homeActive = false;
 	pressedButtonIndex = -1;
 	synth = 0;
 	midi = 0;
@@ -98,6 +99,28 @@ void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 		this->drawbitmap(x, GUI_BUTTON_Y, button_set, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
 		break;
 	}
+	case BUT_MIDI:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_midi, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		break;
+	}
+	case BUT_MIDI_NOT:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_midi, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		drawline(x + 3, 53, x + GUI_BUTTON_WIDTH - 4, 62, WHITE);
+		break;
+	}
+	case BUT_NOTE:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_note, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		break;
+	}
+	case BUT_NOTE_NOT:
+	{
+		this->drawbitmap(x, GUI_BUTTON_Y, button_note, GUI_BUTTON_WIDTH, GUI_BUTTON_HEIGHT, BLACK);
+		drawline(x + 3, 53, x + GUI_BUTTON_WIDTH - 4, 62, WHITE);
+		break;
+	}
 	}
 }
 
@@ -120,8 +143,15 @@ void LCDST7565::enterMenu(int m)
 
 void LCDST7565::makeMenu(int m)
 {
+	homeActive = false;
 	switch(m)
 	{
+	case MENU_HOME:
+	{
+		addMenuItem("Main Menu", (int) MENU_MAIN, &LCDST7565::enterMenu);
+		homeActive = true;
+		break;
+	}
 	case MENU_MAIN:
 	{
 		setMenuTitle("Mainmenu");
@@ -764,7 +794,17 @@ void LCDST7565::setSynthProperty(int value)
 
 void LCDST7565::drawHome()
 {
-	//TODO: Homescreen has to be drawn
+	this->clear();
+	if(synth->config->enabled)
+		drawMenuButton(BUT_NOTE, 1);
+	else
+		drawMenuButton(BUT_NOTE_NOT, 1);
+	if(midi->configuration()->enabled )
+		drawMenuButton(BUT_MIDI, 0);
+	else
+		drawMenuButton(BUT_MIDI_NOT, 0);
+	drawMenuButton(BUT_MENU, 3);
+	this->display();
 }
 
 void LCDST7565::calibrateAntennas(int value)
@@ -782,7 +822,27 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 	}
 	if(currentMenu == MENU_HOME)
 	{
-
+		if(event == PRESS_EVENT)
+		{
+			switch(buttonIndex)
+			{
+			case 3:
+			{
+				menuSelect();
+				break;
+			}
+			case 0:
+			{
+				midi->setEnabled( ! midi->configuration()->enabled );
+				break;
+			}
+			case 1:
+			{
+				synth->setEnabled( ! synth->configuration()->enabled );
+				break;
+			}
+			}
+		}
 	}
 	else // We are in a menu or sub menu
 	{
@@ -872,9 +932,13 @@ void LCDST7565::update() {
 	{
 		drawValueMenu();
 	}
-	else
+	else if ( ! homeActive )
 	{
 		drawMenu();
+	}
+	else
+	{
+		drawHome();
 	}
 }
 
@@ -1210,7 +1274,7 @@ void LCDST7565::drawMenu() {
 	    i++;
 	  }
 
-	  // Draw arrow to indicate current item:
+	  /*// Draw arrow to indicate current item:
 	  this->drawline(0, 11+(8*_current_line), LEFT_MARGIN-5,
 	                                                11+(8*_current_line), BLACK);
 	  this->drawline(LEFT_MARGIN-5, 8+(8*_current_line), LEFT_MARGIN-2,
@@ -1218,7 +1282,8 @@ void LCDST7565::drawMenu() {
 	  this->drawline(LEFT_MARGIN-5, 14+(8*_current_line), LEFT_MARGIN-2,
 	                                                11+(8*_current_line), BLACK);
 	  this->drawline(LEFT_MARGIN-5, 14+(8*_current_line), LEFT_MARGIN-5,
-	                                                8+(8*_current_line), BLACK);
+	                                                8+(8*_current_line), BLACK);*/
+	  this->drawbitmap(0, 8 * (_current_line+1), menu_arrow, 16, 8, BLACK);
 
 
 	  // Draw up arrow if there are items above view

@@ -144,6 +144,7 @@ private:
 	int clineHistory[MENU_HISTORY_SIZE];
 	int historyPos;
 	bool valueMenuActive;
+	bool homeActive;
 	int valStepFactor;
 	int valRepeatedCount;
 
