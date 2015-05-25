@@ -16,6 +16,7 @@ LCDST7565::LCDST7565()
 
 	buty = 52;
 
+	pressedButtonIndex = -1;
 	synth = 0;
 	midi = 0;
 	selectedPart = selectedPartIndex = 0;
@@ -45,6 +46,15 @@ LCDST7565::LCDST7565()
 void LCDST7565::drawMenuButton(gui_menubutton_e but, int slotIndex)
 {
 	int x = slotIndex * GUI_BUTTON_WIDTH;
+
+
+	if( pressedButtonIndex == slotIndex )
+	{
+		int x2 = x + GUI_BUTTON_WIDTH -1;
+		this->drawline(x, 52, x, 127, BLACK);
+		this->drawline(x2, 52, x2, 127, BLACK);
+		this->drawline(x, 51, x2, 51, BLACK);
+	}
 
 	switch(but)
 	{
@@ -154,7 +164,7 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("MIDI Settings");
 		// Enable
 		addMenuItemCheckbox("Enabled", MENU_MIDI_ENABLE, midi->configuration()->enabled);
-		addMenuItemInlineInt("Patch", MENU_MIDI_PATCH, midi->configuration()->patch);
+		addMenuItemInlineInt("Program", MENU_MIDI_PATCH, midi->configuration()->patch);
 		addMenuItem("Note On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Note Off", MENU_MIDI_NOTEOFF, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
@@ -756,6 +766,12 @@ void LCDST7565::calibrateAntennas(int value)
 
 void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 {
+	pressedButtonIndex = buttonIndex;
+	if( event == RELEASE_EVENT )
+	{
+		pressedButtonIndex = -1;
+		//return;
+	}
 	if(currentMenu == MENU_HOME)
 	{
 
@@ -780,7 +796,15 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 			{
 			case BUT_BACK:
 			{
-				menuBack();
+				if( event == REPEATED_PRESS_EVENT )
+				{
+					if( _menu_items[_item_index].type == MENU_ITEM_TYPE_INLINE_INT )
+						menuBack();
+				}
+				else
+				{
+					menuBack();
+				}
 				break;
 			}
 			case BUT_UP:
@@ -809,19 +833,28 @@ void LCDST7565::buttonEvent(int buttonIndex, button_event_e event)
 			}
 			case BUT_OK:
 			{
-				if(valueMenuActive)
+				if( event == REPEATED_PRESS_EVENT )
 				{
-					menuBack();
+					if( _menu_items[_item_index].type == MENU_ITEM_TYPE_INLINE_INT )
+						menuSelect();
 				}
 				else
 				{
-					menuSelect();
+					if(valueMenuActive)
+					{
+						menuBack();
+					}
+					else
+					{
+						menuSelect();
+					}
 				}
 				break;
 			}
 			}
 		}
 	}
+	update();
 }
 
 //=================== Menu ================ Menu ================ Menu =============

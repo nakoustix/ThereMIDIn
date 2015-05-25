@@ -93,7 +93,7 @@ void setup()
 	config.midiConf.patch = 0;
 	config.midiConf.baseNote = 60;
 	config.midiConf.velocity = 100;
-	config.midiConf.enabled = false;
+	config.midiConf.enabled = true;
 
 	// Set the MIDI configuration
 	midi.setConfiguration( &config.midiConf );
@@ -111,6 +111,10 @@ int lastPressUp = 0;
 int lastPressDown = 0;
 bool repeatUp = false;
 bool repeatDown = false;
+int lastPressBack = 0;
+int lastPressOk = 0;
+bool repeatBack = false;
+bool repeatOk = false;
 #define REPEAT_SPEED 80
 #define REPEAT_DELAY 500
 void loop()
@@ -136,6 +140,7 @@ void loop()
 	else if(up.risingEdge())
 	{
 		repeatUp = false;
+		lcd.buttonEvent(BUT_UP, RELEASE_EVENT);
 	}
 
 
@@ -160,35 +165,63 @@ void loop()
 	else if(down.risingEdge())
 	{
 		repeatDown = false;
+		lcd.buttonEvent(BUT_DOWN, RELEASE_EVENT);
 	}
 
 
 	if(back.fallingEdge())
 	{
 		lcd.buttonEvent(BUT_BACK, PRESS_EVENT);
+		lastPressBack = millis();
 	}
+	else if(!back.read())
+	{
+		if(repeatBack && millis() - lastPressBack >= REPEAT_SPEED)
+		{
+			lcd.buttonEvent(BUT_BACK, REPEATED_PRESS_EVENT);
+			lastPressBack = millis();
+		}
+		else if(millis() - lastPressBack >= REPEAT_DELAY)
+		{
+			lastPressBack = millis();
+			repeatBack = true;
+		}
+	}
+	else if(back.risingEdge())
+	{
+		repeatBack = false;
+		lcd.buttonEvent(BUT_BACK, RELEASE_EVENT);
+	}
+
+
 	if(enter.fallingEdge())
 	{
 		lcd.buttonEvent(BUT_OK, PRESS_EVENT);
+		lastPressOk = millis();
+	}
+	else if(!enter.read())
+	{
+		if(repeatOk && millis() - lastPressOk >= REPEAT_SPEED)
+		{
+			lcd.buttonEvent(BUT_OK, REPEATED_PRESS_EVENT);
+			lastPressOk = millis();
+		}
+		else if(millis() - lastPressOk >= REPEAT_DELAY)
+		{
+			lastPressOk = millis();
+			repeatOk = true;
+		}
+	}
+	else if(enter.risingEdge())
+	{
+		repeatOk = false;
+		lcd.buttonEvent(BUT_OK, RELEASE_EVENT);
 	}
 
 	up.update();
 	back.update();
 	down.update();
 	enter.update();
-
-	if(millis() - lastTime >= 500)
-	{
-		//digitalWrite(13, led);
-		if(led)
-		{
-			led = 0;
-		}
-		else
-		{
-			led = 0xFF;
-		}
-	}
 
 	if(millis() - lastMidiUpdate > MIDI_UPDATE_DEL)
 	{

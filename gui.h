@@ -84,8 +84,8 @@ enum gui_menu_e
 
 typedef enum
 {
-	BUT_UP = 0,
-	BUT_DOWN,
+	BUT_DOWN = 0,
+	BUT_UP,
 	BUT_BACK,
 	BUT_OK,
 	BUT_LEFT,

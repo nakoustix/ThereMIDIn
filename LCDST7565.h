@@ -155,6 +155,8 @@ private:
     int8_t _draw_index, lastDrawIndex;
     char _title[LABEL_LEN];
 
+    int pressedButtonIndex;
+
     uint8_t buty;
 };
 
