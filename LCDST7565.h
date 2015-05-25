@@ -27,7 +27,7 @@
 #define N_LINES 6
 #define DOWN_ARROW_Y	46
 #define LABEL_LEN 19
-#define UNIT_LEN 2
+#define UNIT_LEN 8
 #define ST7565_MENU_VERSION "Menu UI v0.1"
 //------------------
 
@@ -55,6 +55,7 @@ typedef struct
 	synth_value_e type;
 	int min, max;
 	int value;
+	int indexOffset;
 	int step;
 	float fstep;
 	float fmin, fmax;

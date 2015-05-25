@@ -45,6 +45,7 @@ void setup()
 	config.synthConf.masterGain = 0.45f;
 	config.synthConf.baseFreq = 500;
 	config.synthConf.enabled = true;
+	config.synthConf.semiRange = 12;
 
 	// OSC 1
 	config.synthConf.preset.osc[OSC1].enabled = true;

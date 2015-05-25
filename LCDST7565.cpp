@@ -351,6 +351,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_MIDI_CHANNEL:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_MIDI_CHANNEL;
 			cSynthVal.min = 0;
 			cSynthVal.max = 15;
@@ -363,6 +364,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_MIDI_NOTE:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_MIDI_NOTE;
 			cSynthVal.min = 0;
 			cSynthVal.max = 127;
@@ -375,6 +377,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_MIDI_VELOCITY:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_MIDI_CC;
 			cSynthVal.min = 0;
 			cSynthVal.max = 127;
@@ -388,6 +391,7 @@ void LCDST7565::makeValueMenu(int menu)
 		case MENU_MIDI_CC_PITCH:
 		case MENU_MIDI_CC_VOL:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_MIDI_CC;
 			cSynthVal.min = 0;
 			cSynthVal.max = 127;
@@ -409,6 +413,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_DISP_CONTRAST:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = 0;
 			cSynthVal.max = 100;
@@ -421,6 +426,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_GAIN:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
@@ -434,23 +440,25 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_BASEFREQ:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 10;
 			cSynthVal.fmax = 10000;
-			cSynthVal.fvalue = synth->config->baseFreq;
+			cSynthVal.fvalue = synth->configuration()->baseFreq;
 			cSynthVal.fstep = 0.1f;
 			cSynthVal.fdigits = 1;
 			cSynthVal.incSpeed = 3;
-			strcpy(cSynthVal.name, "Basefreq.");
+			strcpy(cSynthVal.name, "Basefrequency");
 			strcpy(cSynthVal.unit, "Hz");
 			break;
 		}
 		case MENU_SYNTH_SEMIRANGE:
 		{
 			cSynthVal.type = VAL_TYPE_INT;
-			cSynthVal.min = 1;
+			cSynthVal.min = 0;
 			cSynthVal.max = 24;
-			cSynthVal.value = synth->config->semiRange;
+			cSynthVal.indexOffset = 0;
+			cSynthVal.value = synth->configuration()->semiRange;
 			cSynthVal.step = 1;
 			cSynthVal.incSpeed = 5;
 			strcpy(cSynthVal.name, "Semitone Range");
@@ -459,6 +467,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_OSC_AMPLITUDE:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
@@ -472,6 +481,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_OSC_SEMI:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = -24;
 			cSynthVal.max = 24;
@@ -484,6 +494,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_OSC_CENT:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = -100;
 			cSynthVal.max = 100;
@@ -496,6 +507,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_OSC_WTPOS:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
@@ -509,6 +521,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_OSC_DUTY:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_INT;
 			cSynthVal.min = 0;
 			cSynthVal.max = 100;
@@ -521,6 +534,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_FILTER_SERPAR:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.f;
 			cSynthVal.fmax = 100.f;
@@ -534,6 +548,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_FILTER1_FREQ:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 10;
 			cSynthVal.fmax = 20000;
@@ -547,6 +562,7 @@ void LCDST7565::makeValueMenu(int menu)
 		}
 		case MENU_SYNTH_FILTER1_RESO:
 		{
+			cSynthVal.indexOffset = 0;
 			cSynthVal.type = VAL_TYPE_FLOAT;
 			cSynthVal.fmin = 0.0;
 			cSynthVal.fmax = 3.0;
@@ -1257,7 +1273,7 @@ void LCDST7565::drawValueMenu()
 	sprintf(c, "%i%s", cSynthVal.value, cSynthVal.unit);*/
 
 	// draw title
-	drawstring(centerString(cSynthVal.name),0, cSynthVal.name);
+	drawstring( centerString(cSynthVal.name) , 0, cSynthVal.name);
 	invertRect(0,0,128,8);
 
 	// Draw value bar for floats ints
@@ -1308,7 +1324,7 @@ void LCDST7565::drawValueMenu()
 	case VAL_TYPE_MIDI_CC:
 	case VAL_TYPE_INT:
 	{
-		sprintf(str, "%i%s", cSynthVal.value, cSynthVal.unit);
+		sprintf(str, "%i%s", cSynthVal.value + cSynthVal.indexOffset, cSynthVal.unit);
 		break;
 	}
 	case VAL_TYPE_MIDI_NOTE:
