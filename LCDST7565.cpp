@@ -125,19 +125,10 @@ void LCDST7565::makeMenu(int m)
 	case MENU_MAIN:
 	{
 		setMenuTitle("Mainmenu");
-		addMenuItem("Operating Mode", (int) MENU_OPERATING_MODE, &LCDST7565::enterMenu);
 		addMenuItem("Calibrate Antennas", (int) MENU_ANTENNA_CALIB, &LCDST7565::calibrateAntennas);
 		addMenuItem("MIDI Settings", (int) MENU_MIDI, &LCDST7565::enterMenu);
 		addMenuItem("Synth Settings", (int) MENU_SYNTH, &LCDST7565::enterMenu);
 		addMenuItem("Display Settings", (int) MENU_DISP, &LCDST7565::enterMenu);
-		break;
-	}
-	case MENU_OPERATING_MODE:
-	{
-		setMenuTitle("Operating Mode");
-		addMenuItemRadiobutton("MIDI / USB-MIDI", (int) OPMODE_MIDI);
-		addMenuItemRadiobutton("Synthesizer", (int) OPMODE_SYNTH);
-		selectRadioButton(0);
 		break;
 	}
 	case MENU_DISP:
@@ -204,6 +195,7 @@ void LCDST7565::makeMenu(int m)
 	case MENU_SYNTH:
 	{
 		setMenuTitle("Synthesizer");
+		addMenuItemCheckbox("Enabled", MENU_SYNTH_ENABLE, synth->configuration()->enabled );
 		addMenuItem("Master Gain", MENU_SYNTH_GAIN, &LCDST7565::enterValueMenu);
 		addMenuItem("Basefrequency", MENU_SYNTH_BASEFREQ, &LCDST7565::enterValueMenu);
 		addMenuItem("Semitone Range", MENU_SYNTH_SEMIRANGE, &LCDST7565::enterValueMenu);
@@ -979,6 +971,14 @@ void LCDST7565::updateCheckbox(int val)
 
 		break;
 	}
+	case MENU_SYNTH:
+	{
+		if( val == MENU_SYNTH_ENABLE )
+		{
+			synth->setEnabled( _menu_items[_item_index].checked );
+		}
+		break;
+	}
 	/*
 	case MENU_MIDI_CC_PITCH:
 	{
@@ -1011,11 +1011,6 @@ void LCDST7565::updateRadiobutton(int val)
 	// TODO: update the requested value!
 	switch(currentMenu)
 	{
-	case MENU_OPERATING_MODE:
-	{
-		setOperatingMode( (opmode_e) val);
-		break;
-	}
 	case MENU_SYNTH_OSC_WAVEFORM: synth->setOSCWaveform(selectedPartIndex, val); break;
 	case MENU_DISP_COLOR: setBackgroundColor(val); break;
 	case MENU_MIDI_CC_PITCH:

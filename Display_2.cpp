@@ -44,6 +44,7 @@ void setup()
 	// === Initialize default configuration ===
 	config.synthConf.masterGain = 0.45f;
 	config.synthConf.baseFreq = 500;
+	config.synthConf.enabled = true;
 
 	// OSC 1
 	config.synthConf.preset.osc[OSC1].enabled = true;
@@ -97,8 +98,6 @@ void setup()
 
 	// Set the MIDI configuration
 	midi.setConfiguration( &config.midiConf );
-
-	setOperatingMode( OPMODE_MIDI );
 
 	lcd.setSynthesizerInstance( &synth );
 	lcd.setMidiInstance( &midi );
@@ -229,36 +228,18 @@ void loop()
 		pitchVal = analogRead(ADC_PIN_PITCH);
 		if( pitchVal != lastPitchVal )
 		{
+			float offset = (float) (pitchVal - ADC_HALF) / ADC_MAX;
 			lastPitchVal = pitchVal;
-			switch( config.operatingMode )
-			{
-			case OPMODE_MIDI:	midi.setOffset( CT_PITCH, (pitchVal - ADC_HALF) / ADC_HALF); break;
-			case OPMODE_SYNTH:	synth.setOffset( CT_PITCH, (float) (pitchVal - ADC_HALF) / ADC_MAX);
-			}
+			midi.setOffset( CT_PITCH, offset);
+			synth.setOffset( CT_PITCH, offset);
 		}
 		volVal = analogRead(ADC_PIN_VOLUME);
 		if( volVal != lastVolVal )
 		{
+			float offset = (float) (volVal - ADC_HALF) / ADC_MAX;
 			lastVolVal = volVal;
-			switch( config.operatingMode )
-			{
-			case OPMODE_MIDI:	midi.setOffset( CT_VOLUME, (volVal - ADC_HALF) / ADC_HALF); break;
-			case OPMODE_SYNTH:	synth.setOffset( CT_VOLUME, (float) (volVal - ADC_HALF) / ADC_MAX);
-			}
+			midi.setOffset( CT_VOLUME, offset);
+			synth.setOffset( CT_VOLUME, offset);
 		}
-	}
-}
-
-void setOperatingMode(opmode_e opmode)
-{
-	config.operatingMode = OPMODE_MIDI;
-	if(config.operatingMode == OPMODE_MIDI)
-	{
-		synth.gotoSleep();
-	}
-	else
-	{
-		synth.enable(config.synthConf.masterGain);
-		synth.noteOn();
 	}
 }

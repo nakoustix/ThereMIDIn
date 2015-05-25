@@ -25,6 +25,7 @@ public:
 	Synthesizer();
 	virtual ~Synthesizer();
 
+	void setEnabled(bool en);
 	void setPreset(synth_preset_t *p);
 	void setConfiguration(synth_configuration_t *config);
 
@@ -58,6 +59,8 @@ public:
 
 	void disconnect();
 	void reconnect();
+
+	synth_configuration_t *configuration() {return config; }
 
 	OSCWaveform * getOSC(int index);
 	BandPassFilter *getFilter1() { return &flt1; }

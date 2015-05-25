@@ -46,6 +46,22 @@ Synthesizer::~Synthesizer()
 
 }
 
+void Synthesizer::setEnabled(bool en)
+{
+	config->enabled = en;
+	if( en )
+		enable(config->masterGain);
+	else
+		gotoSleep();
+	/*if(! en)
+	{
+		AudioNoInterrupts();
+		//audioShield.muteHeadphone();
+		//audioShield.volume(0.f);
+		AudioInterrupts();
+	}*/
+}
+
 void Synthesizer::enable(float gain)
 {
 	audioShield.enable();
@@ -56,6 +72,7 @@ void Synthesizer::enable(float gain)
 
 void Synthesizer::gotoSleep()
 {
+	audioShield.volume(0.0);
 	audioShield.disable();
 }
 
@@ -95,6 +112,8 @@ void Synthesizer::setSemiRange(uint8_t range)
 
 void Synthesizer::setOffset(control_type_e control, float o)
 {
+	if( ! config->enabled )
+		return;
 	switch( control )
 	{
 	case CT_PITCH:
@@ -160,8 +179,13 @@ void Synthesizer::setPreset(synth_preset_t *p)
 
 void Synthesizer::setConfiguration(synth_configuration_t *config)
 {
+	//this->gotoSleep();
 	this->config = config;
 	this->setPreset(&config->preset);
+	if(config->enabled)
+	{
+		enable(config->masterGain);
+	}
 }
 
 void Synthesizer::noteOn()

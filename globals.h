@@ -102,13 +102,6 @@ typedef struct
 	uint8_t velocity;
 } midi_configuration_t;
 
-typedef enum OperatingMode
-{
-	OPMODE_SYNTH,
-	OPMODE_MIDI
-} opmode_e;
-
-
 typedef enum
 {
 	SINE = 0,
@@ -158,6 +151,7 @@ typedef struct
 
 typedef struct
 {
+	bool enabled;
 	float masterGain;
 	float baseFreq;
 	uint32_t semiRange;
@@ -192,7 +186,6 @@ extern float centf_minus[100];
 extern char midi_note_names[12];
 
 extern void midiConfigChanged();
-extern void setOperatingMode( opmode_e mode );
 
 
 #endif /* GLOBALS_H_ */
