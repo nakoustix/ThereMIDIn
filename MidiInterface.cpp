@@ -69,6 +69,12 @@ void MidiInterface::configurationChanged()
 	reNote();
 }
 
+void MidiInterface::setProgram(uint8_t prg)
+{
+	config->patch = prg;
+	usbMIDI.sendProgramChange(prg, config->channel);
+}
+
 void MidiInterface::setOffset(control_type_e control, float offset)
 {
 	if( ! config->enabled )

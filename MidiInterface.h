@@ -26,7 +26,7 @@ public:
 	void reNote();
 	void noteOn();
 	void noteOff();
-	void nextProgram();
+	void setProgram(uint8_t prg);
 
 	void setChannel(uint8_t chn);
 	void setBaseNote(uint8_t note);

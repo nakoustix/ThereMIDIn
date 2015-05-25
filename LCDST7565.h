@@ -16,6 +16,7 @@
 
 //--- Configuration: ---
 #define LEFT_MARGIN       10 // Should be >4
+#define RIGHT_MARGIN	  100
 #define MAX_ITEMS         12
 #define MAX_HOLD_COUNT    3  // Loops of holding up or down button
                              //  before continuing to scroll
@@ -45,6 +46,7 @@ typedef enum
 	MENU_ITEM_TYPE_NORMAL,
 	MENU_ITEM_TYPE_CHECK,
 	MENU_ITEM_TYPE_RADIO,
+	MENU_ITEM_TYPE_INLINE_INT,
 	MENU_ITEM_TYPE_LINE
 } menu_item_e;
 
@@ -72,6 +74,7 @@ public:
 		menu_item_e type;
 		char label[LABEL_LEN+1];
 		int value, update_counter;
+		int inlineValue;
 		bool pass_value, funct;
 		bool checked;
 		void (*function)(void);
@@ -99,6 +102,7 @@ public:
     void addMenuItemCheckbox(char *label, int value, bool checked);
     void addMenuItemRadiobutton(char *label, int value);
     void addMenuItemLine(char *label);
+    void addMenuItemInlineInt(char *label, int id, int value );
     void drawMenu();
     void clearMenu();
 
@@ -121,6 +125,7 @@ private:
 	int centerString(char *c);
 	void updateCheckbox(int val);
 	void updateRadiobutton(int val);
+	int updateInlineInt(int type, int newVal);
 	void selectRadioButton(int index);
 
 

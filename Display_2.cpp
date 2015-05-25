@@ -86,13 +86,14 @@ void setup()
 	// MIDI
 	config.midiConf.antenna[CT_PITCH].cc = 0;
 	config.midiConf.antenna[CT_PITCH].use14Bit = true;
-	config.midiConf.antenna[CT_PITCH].muted = false;
+	config.midiConf.antenna[CT_PITCH].muted = true;
 	config.midiConf.antenna[CT_VOLUME].cc = 1;
 	config.midiConf.antenna[CT_VOLUME].use14Bit = false;
 	config.midiConf.antenna[CT_VOLUME].muted = true;
+	config.midiConf.patch = 0;
 	config.midiConf.baseNote = 60;
 	config.midiConf.velocity = 100;
-	config.midiConf.enabled = true;
+	config.midiConf.enabled = false;
 
 	// Set the MIDI configuration
 	midi.setConfiguration( &config.midiConf );

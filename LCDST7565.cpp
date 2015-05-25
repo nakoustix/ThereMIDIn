@@ -154,6 +154,7 @@ void LCDST7565::makeMenu(int m)
 		setMenuTitle("MIDI Settings");
 		// Enable
 		addMenuItemCheckbox("Enabled", MENU_MIDI_ENABLE, midi->configuration()->enabled);
+		addMenuItemInlineInt("Patch", MENU_MIDI_PATCH, midi->configuration()->patch);
 		addMenuItem("Note On", MENU_MIDI_RENOTE, &LCDST7565::enterValueMenu);
 		addMenuItem("Note Off", MENU_MIDI_NOTEOFF, &LCDST7565::enterValueMenu);
 		addMenuItem("Note", MENU_MIDI_NOTE, &LCDST7565::enterValueMenu);
@@ -838,16 +839,25 @@ void LCDST7565::update() {
 
 void LCDST7565::menuBack()
 {
-	if(historyPos <= 1) return;
-	historyPos--;
-	currentMenu = menuHistory[historyPos];
-	// clear the current menu
-	valueMenuActive = false;
-	clearMenu();
-	makeMenu(currentMenu);
-	_item_index = itemIndexHistory[historyPos];
-	_draw_index = drawIndexHistory[historyPos];
-	_current_line = clineHistory[historyPos];
+	if(_menu_items[_item_index].type == MENU_ITEM_TYPE_INLINE_INT)
+	{
+		int val = this->updateInlineInt(_menu_items[_item_index].value,
+				--_menu_items[_item_index].inlineValue);
+		_menu_items[_item_index].inlineValue = val;
+	}
+	else
+	{
+		if(historyPos <= 1) return;
+		historyPos--;
+		currentMenu = menuHistory[historyPos];
+		// clear the current menu
+		valueMenuActive = false;
+		clearMenu();
+		makeMenu(currentMenu);
+		_item_index = itemIndexHistory[historyPos];
+		_draw_index = drawIndexHistory[historyPos];
+		_current_line = clineHistory[historyPos];
+	}
 	update();
 }
 
@@ -886,7 +896,16 @@ void LCDST7565::menuDown()
 
 void LCDST7565::menuSelect()
 {
-	(this->*_menu_items[_item_index].value_function)(_menu_items[_item_index].value);
+	if(_menu_items[_item_index].type == MENU_ITEM_TYPE_INLINE_INT)
+	{
+		int val = this->updateInlineInt(_menu_items[_item_index].value,
+			++_menu_items[_item_index].inlineValue);
+		_menu_items[_item_index].inlineValue = val;
+	}
+	else
+	{
+		(this->*_menu_items[_item_index].value_function)(_menu_items[_item_index].value);
+	}
 	update();
 }
 
@@ -979,6 +998,23 @@ void LCDST7565::updateRadiobutton(int val)
 	}
 }
 
+int LCDST7565::updateInlineInt(int type, int newVal)
+{
+	switch(type)
+	{
+	case MENU_MIDI_PATCH:
+	{
+		if(newVal > 127)
+			newVal = 127;
+		else if(newVal < 0)
+			newVal = 0;
+		midi->setProgram(newVal);
+		break;
+	}
+	}
+	return newVal;
+}
+
 void LCDST7565::setMenuTitle(char *label) {
   strcpy(_title, label); // First line of display, blank if not set
 }
@@ -993,6 +1029,19 @@ void LCDST7565::addMenuItem(char *label, int value,  void (LCDST7565::*function)
   i.pass_value = i.funct = true; // Has function and should pass it a value
   i.value = value;               // Value to pass to function on select
   i.value_function = function;   // Function to call
+  _menu_items[_n_items++] = i;
+}
+
+
+void LCDST7565::addMenuItemInlineInt(char *label, int id, int value) {
+  if (_n_items >= MAX_ITEMS) return;
+  if (strlen(label) > LABEL_LEN) return;
+  MenuItem i;
+  strcpy(i.label, label);
+  i.type = MENU_ITEM_TYPE_INLINE_INT;
+  i.pass_value = i.funct = false;
+  i.value = id;
+  i.inlineValue = value;
   _menu_items[_n_items++] = i;
 }
 
@@ -1106,6 +1155,13 @@ void LCDST7565::drawMenu() {
 	    	}
 	    	break;
 	    }
+	    case MENU_ITEM_TYPE_INLINE_INT:
+	    {
+	    	char s[8];
+	    	sprintf(s, "%i", _menu_items[_draw_index+i].inlineValue);
+		    this->drawstring(122 - strlen(s) * 6, i+1, s);
+	    	break;
+	    }
 	    }
 	    i++;
 	  }
@@ -1134,17 +1190,24 @@ void LCDST7565::drawMenu() {
 
 	  this->drawMenuButton(BUT_DOWN, 0);
 	  this->drawMenuButton(BUT_UP, 1);
-	  this->drawMenuButton(BUT_BACK, 2);
 	  switch( _menu_items[_item_index].type )
 	  {
 	  case MENU_ITEM_TYPE_CHECK:
 	  case MENU_ITEM_TYPE_RADIO:
 	  {
+		  this->drawMenuButton(BUT_BACK, 2);
 		  this->drawMenuButton(BUT_SET, 3);
+		  break;
+	  }
+	  case MENU_ITEM_TYPE_INLINE_INT:
+	  {
+		  this->drawMenuButton(BUT_LEFT, 2);
+		  this->drawMenuButton(BUT_RIGHT, 3);
 		  break;
 	  }
 	  default:
 	  {
+		  this->drawMenuButton(BUT_BACK, 2);
 		  this->drawMenuButton(BUT_OK, 3);
 		  break;
 	  }
