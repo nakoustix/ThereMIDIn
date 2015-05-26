@@ -1294,7 +1294,7 @@ void LCDST7565::drawMenu() {
 	    {
 	    case MENU_ITEM_TYPE_CHECK:
 	    {
-	    	uint8_t y = (i+1) * 8 + 1;
+	    	uint8_t y = (i+1) * 8;
 	    	drawrect(GUI_CHECKBOX_X, y, 7, 7, BLACK);
 	    	if(_menu_items[_draw_index+i].checked)
 	    	{
