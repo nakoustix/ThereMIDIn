@@ -11,6 +11,7 @@
 
 MidiInterface::MidiInterface() {
 	config = new midi_configuration_t;
+	pitchOffset = volOffset = 0.f;
 }
 
 MidiInterface::~MidiInterface() {
@@ -75,6 +76,13 @@ void MidiInterface::setProgram(uint8_t prg)
 	usbMIDI.sendProgramChange(prg, config->channel);
 }
 
+float MidiInterface::offset(control_type_e control)
+{
+	if( control == CT_PITCH )
+		return pitchOffset;
+	return volOffset;
+}
+
 void MidiInterface::setOffset(control_type_e control, float offset)
 {
 	if( ! config->enabled )
@@ -88,9 +96,19 @@ void MidiInterface::setOffset(control_type_e control, float offset)
 			if( value > MIDI_PITCHBEND_MAX ) value = MIDI_PITCHBEND_MAX;
 			switch( control )
 			{
-			case CT_PITCH:	usbMIDI.sendPitchBend( (uint32_t) value, config->channel ); break;
+			case CT_PITCH:
+			{
+				pitchOffset = offset;
+				usbMIDI.sendPitchBend( (uint32_t) value, config->channel );
+				break;
+			}
 			// TODO: determine a second 14Bit parameter! Don't use pitchbend for both!
-			case CT_VOLUME:	usbMIDI.sendPitchBend( (uint32_t) value, config->channel ); break;
+			case CT_VOLUME:
+			{
+				volOffset = offset;
+				usbMIDI.sendPitchBend( (uint32_t) value, config->channel );
+				break;
+			}
 			}
 		}
 		else

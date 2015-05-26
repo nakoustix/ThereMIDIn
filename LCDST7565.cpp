@@ -792,6 +792,54 @@ void LCDST7565::setSynthProperty(int value)
 	this->display();
 }
 
+void LCDST7565::drawOffsetBar(control_type_e control)
+{
+	int fillw;
+	float value = 1.f;//midi->offset( CT_PITCH );
+	int y;
+
+	if( control == CT_PITCH )
+	{
+		value = 0.77f;
+		y = 12;
+	}
+	else
+	{
+		value = -0.2f;
+		y = 34;
+	}
+
+	drawrect(GUI_VALBAR_X-2, y, GUI_VALBAR_WIDTH+3, GUI_VALBAR_HEIGHT, BLACK);
+	if(value >= 0)
+	{
+		fillw = (int)  ((GUI_VALBAR_WIDTH * value) / 2.f) + 1;
+		float x = GUI_VALBAR_X + GUI_VALBAR_WIDTH / 2.f - 1;
+		fillrect((int)x, y, fillw, GUI_VALBAR_HEIGHT, BLACK);
+	}
+	else
+	{
+		value *= -1;
+		fillw = (int)  ((GUI_VALBAR_WIDTH * value) / 2.f) + 1;
+		float x = GUI_VALBAR_X + GUI_VALBAR_WIDTH / 2.f - fillw;
+		fillrect((int)x, y, fillw, GUI_VALBAR_HEIGHT, BLACK);
+		//fillrect(GUI_VALBAR_X-1, y, GUI_VALBAR_WIDTH+2, GUI_VALBAR_HEIGHT, BLACK);
+	}
+
+	for(int x = GUI_VALBAR_X + 4; x < GUI_VALBAR_X+GUI_VALBAR_WIDTH-1; x += 5)
+	{
+		setpixel(x, y-1, BLACK);
+		setpixel(x, y + GUI_VALBAR_HEIGHT, BLACK);
+	}
+	//draw left marker
+	drawline(GUI_VALBAR_X-2, y-2, GUI_VALBAR_X-2, y + GUI_VALBAR_HEIGHT+1, BLACK);
+	//draw right marker
+	drawline(GUI_VALBAR_X + GUI_VALBAR_WIDTH, y-2, GUI_VALBAR_X + GUI_VALBAR_WIDTH, y + GUI_VALBAR_HEIGHT+1, BLACK);
+	//draw middle marker
+	//setpixel(GUI_VALBAR_HALF, y-1,BLACK);
+	setpixel(GUI_VALBAR_HALF+1, y-1, BLACK);
+	setpixel(GUI_VALBAR_HALF+1, y + GUI_VALBAR_HEIGHT, BLACK);
+}
+
 void LCDST7565::drawHome()
 {
 	this->clear();
@@ -804,7 +852,12 @@ void LCDST7565::drawHome()
 	else
 		drawMenuButton(BUT_MIDI_NOT, 0);
 	drawMenuButton(BUT_MENU, 3);
+
+	drawOffsetBar( CT_PITCH );
+	drawOffsetBar( CT_VOLUME );
+
 	this->display();
+
 }
 
 void LCDST7565::calibrateAntennas(int value)

@@ -37,6 +37,8 @@ public:
 	void muteControl(control_type_e control, bool mute);
 	bool isMuted(control_type_e control);
 
+	float offset(control_type_e control);
+
 	void setOffset(control_type_e control, float offset);
 
 	midi_configuration_t *configuration() const { return config; }
@@ -44,6 +46,7 @@ public:
 private:
 	void configurationChanged();
 
+	float pitchOffset, volOffset;
 	midi_configuration_t *config;
 };
 

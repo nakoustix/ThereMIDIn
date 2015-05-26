@@ -128,6 +128,7 @@ private:
 	void updateRadiobutton(int val);
 	int updateInlineInt(int type, int newVal);
 	void selectRadioButton(int index);
+	void drawOffsetBar(control_type_e control);
 
 
 	Synthesizer *synth;
